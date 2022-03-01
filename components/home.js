@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, FlatList, Button} from 'react-native';
+import {StyleSheet, View, Text, FlatList, Button} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class HomePage extends Component {
@@ -7,48 +7,10 @@ class HomePage extends Component {
     super(props);
 
     this.state = {
-      isLoading: true,
-      listData: []
+      isLoading: false,
+      listData: [],
+      info: {}
     }
-  }
-
-  componentDidMount() {
-    this.unsubscribe = this.props.navigation.addListener('focus', () => {
-      this.checkLoggedIn();
-    });
-  
-    this.getData();
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  getData = async () => {
-    const value = await AsyncStorage.getItem('@session_token');
-    return fetch("http://10.0.2.2:3333/api/1.0.0/search", {
-          'headers': {
-            'X-Authorization':  value
-          }
-        })
-        .then((response) => {
-            if(response.status === 200){
-                return response.json()
-            }else if(response.status === 401){
-              this.props.navigation.navigate("Login");
-            }else{
-                throw 'Something went wrong';
-            }
-        })
-        .then((responseJson) => {
-          this.setState({
-            isLoading: false,
-            listData: responseJson
-          })
-        })
-        .catch((error) => {
-            console.log(error);
-        })
   }
 
   checkLoggedIn = async () => {
@@ -58,32 +20,62 @@ class HomePage extends Component {
     }
   };
 
-  render() {
+  componentDidMount() {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.checkLoggedIn();
+    });
 
-    if (this.state.isLoading){
-      return (
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text>Loading..</Text>
-        </View>
-      );
-    }else{
+    this.getCurrentUser();
+  };
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  };
+
+  checkLoggedIn = async () => {
+    const value = await AsyncStorage.getItem('@session_token');
+    if (value == null) {
+        this.props.navigation.navigate('Login');
+    }
+  };
+
+  getCurrentUser = async() => {
+    console.log("Getting profile...");
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Authorization': session_token
+        }
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+            //isLoading: false,
+            info: responseJson
+            
+        })
+    })
+    .then(async (responseJson) => {
+      console.log(responseJson);
+      await AsyncStorage.setItem('@first_name', responseJson.first_name);
+      await AsyncStorage.setItem('@last_name', responseJson.last_name);
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+  }
+
+  render() {
       return (
         <View>
-          <FlatList
-                data={this.state.listData}
-                renderItem={({item}) => (
-                    <View>
-                      <Text>{item.user_givenname} {item.user_familyname}</Text>
-                    </View>
-                )}
-                keyExtractor={(item,index) => item.user_id.toString()}
-              />
+
+          <View style={styles.box}>
+          <Text>{this.state.info.first_name} {this.state.info.last_name}</Text>
+          </View>
 
           <Button
                 title="Logout"
@@ -95,13 +87,23 @@ class HomePage extends Component {
                 color="green"
                 onPress={() => this.props.navigation.navigate("Friends")}
           />
-
+          <Button
+                title="Profile"
+                color="green"
+                onPress={() => this.props.navigation.navigate("Profile")}               
+          />
         </View>
       );
     }
     
   }
-}
+const styles = StyleSheet.create({
+  box: {
+  
+    backgroundColor:('lightblue'),
+    padding: 10,
+  }
+})
 
 
 

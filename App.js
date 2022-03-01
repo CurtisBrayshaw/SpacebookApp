@@ -8,6 +8,8 @@ import LoginPage from './components/login';
 import SignupPage from './components/signup';
 import LogoutPage from './components/logout';
 import FriendPage from './components/friends';
+import ProfilePage from './components/profile';
+
 const Stack = createNativeStackNavigator();
 
 class App extends Component{
@@ -20,6 +22,7 @@ class App extends Component{
                     <Stack.Screen name="Signup" component={SignupPage} />
                     <Stack.Screen name="Logout" component={LogoutPage} />
                     <Stack.Screen name="Friends" component={FriendPage} />
+                    <Stack.Screen name="Profile" component={ProfilePage} />
                 </Stack.Navigator>
                 
             </NavigationContainer>
