@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { ScrollView, TextInput, Button, View, FlatList,Text} from 'react-native';
+import { ScrollView, TextInput, Button, View, FlatList,Text, StyleSheet, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Camera} from 'expo-camera';
 
 class ProfilePage extends Component{
   constructor(props){
@@ -8,7 +9,9 @@ class ProfilePage extends Component{
 
       this.state = {
           data:[],
-          info: {}
+          info: {},
+          hasPermission: null,
+          type: Camera.Constants.Type.back,
       }
   }
 
@@ -19,7 +22,9 @@ class ProfilePage extends Component{
     }
   };
 
-  componentDidMount() {
+  async componentDidMount() {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    this.setState({hasPermission: status === 'denied'})
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
@@ -28,7 +33,7 @@ class ProfilePage extends Component{
   };
 
   componentWillUnmount() {
-    this.unsubscribe();
+  
   };
 
   checkLoggedIn = async () => {
@@ -37,6 +42,11 @@ class ProfilePage extends Component{
         this.props.navigation.navigate('Login');
     }
   };
+
+  cameraToggle = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    this.setState({hasPermission: status === 'granted'})
+  }
 
   showfriends = async () => {
       const UID = await AsyncStorage.getItem('@UID');
@@ -100,14 +110,47 @@ class ProfilePage extends Component{
       }
     };
 
-  render(){
-      return (
-        <View>
-          
-        <Text>Name:{this.state.info.first_name} {this.state.info.last_name}</Text>
-        <Text>Email Address: {this.state.info.email}</Text>
+render(){
+  if(this.state.hasPermission){
+return(
+  <View style={styles.button}>
+          <Camera style={styles.button} type={this.state.type}>
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  let type = type === Camera.Constants.Type.back
+                  ? Camera.Constants.Type.front
+                  : Camera.Constants.Type.back;
+
+                  this.setState({type: type});
+                }}>
+                <Text style={styles.text}> Flip </Text>
+              </TouchableOpacity>
+            </View>
+          </Camera>
         </View>
-      )
-    } 
+      );
+    }else{
+      return(
+  <View>
+  <Text>Name:{this.state.info.first_name} {this.state.info.last_name}</Text>
+  <Text>Email Address: {this.state.info.email}</Text>
+  <Button title="Take Picture" color="green" onPress={() => this.cameraToggle()} />
+  </View>
+      );
+    }
+  }
 }
+
 export default ProfilePage;
+
+const styles = StyleSheet.create({
+
+  button: {
+    flex: 1,
+    backgroundColor:('lightblue'),
+    padding: 10,
+  },
+
+
+})

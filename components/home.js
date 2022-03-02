@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Text, FlatList, Button} from 'react-native';
+import {StyleSheet, View, Text, FlatList,Image, Button} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 class HomePage extends Component {
   constructor(props){
     super(props);
@@ -9,7 +8,8 @@ class HomePage extends Component {
     this.state = {
       isLoading: false,
       listData: [],
-      info: {}
+      info: {},
+      photo: URL
     }
   }
 
@@ -39,6 +39,36 @@ class HomePage extends Component {
     }
   };
 
+  getProfilePhoto = async () => {
+
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch ('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/photo", {
+      headers: {
+          'X-Authorization': session_token
+      }
+    })
+    .then ((res) => {
+      return res.blob();
+    })
+
+    .then((resBlob) => {
+      let data = URL.createObjectURL(resBlob);
+      this.setState({
+        isLoading: false,
+        photo: data
+      })
+    })
+    .catch((error) => {
+        console.log(error);
+    })
+  }
+
+
+
+
+
+
   getCurrentUser = async() => {
     console.log("Getting profile...");
     const session_token = await AsyncStorage.getItem('@session_token');
@@ -58,6 +88,7 @@ class HomePage extends Component {
             info: responseJson
             
         })
+        this.getProfilePhoto();
     })
     .then(async (responseJson) => {
       console.log(responseJson);
@@ -72,22 +103,23 @@ class HomePage extends Component {
   render() {
       return (
         <View>
-
+          
           <View style={styles.box}>
+          <Image style={styles.logo} source={{uri: this.state.photo}}/>
           <Text>{this.state.info.first_name} {this.state.info.last_name}</Text>
           </View>
 
-          <Button
+          <Button style={styles.button}
                 title="Logout"
                 color="green"
                 onPress={() => this.props.navigation.navigate("Logout")}
           />
-          <Button
+          <Button style={styles.button}
                 title="Friends"
                 color="green"
                 onPress={() => this.props.navigation.navigate("Friends")}
           />
-          <Button
+          <Button style={styles.button}
                 title="Profile"
                 color="green"
                 onPress={() => this.props.navigation.navigate("Profile")}               
@@ -102,6 +134,17 @@ const styles = StyleSheet.create({
   
     backgroundColor:('lightblue'),
     padding: 10,
+    
+  },
+  button: {
+  
+    backgroundColor:('lightblue'),
+    padding: 10,
+    
+  },
+  logo: {
+    width: 50,
+    height: 50
   }
 })
 

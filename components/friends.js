@@ -9,13 +9,14 @@ super(props);
 this.state = {
 data:[],
 requestList: [],
+userList: [],
+input:""
 }
-}
+} 
 componentDidMount() {
 this.unsubscribe = this.props.navigation.addListener('focus', () => {
 this.checkLoggedIn();
 });
-// call functions here
 this.Showfriends();
 this.FriendRequests();
 }
@@ -31,14 +32,6 @@ if (sessionToken == null) {
 this.props.navigation.navigate('Login');
 }
 };
-
-addItemToList = () => {
-let newItems = this.state.items.concat(this.state.temp_item);
-this.setState({
-items: newItems,
-temp_item: ""
-});
-}
 
 Showfriends = async () => {
 const UID = await AsyncStorage.getItem('@UID');
@@ -69,6 +62,130 @@ data: responseJson
 console.log(error);
 })
 }
+
+getUsers = async () => {
+  const UID = await AsyncStorage.getItem('@UID');
+  const sessionToken = await AsyncStorage.getItem('@session_token');
+  //Validation here...
+  
+  return fetch("http://10.0.2.2:3333/api/1.0.0/search", {
+  method: 'get',
+  'headers': {
+  'X-Authorization':  sessionToken
+  }
+  })
+  .then((response) => {
+  if(response.status === 200){
+  return response.json()
+  }else if(response.status === 401){
+  this.props.navigation.navigate("Login");
+  }else{
+  throw 'Something went wrong';
+  }
+  })
+  .then((responseJson) => {
+  this.setState({
+  isLoading: false,
+  userList: responseJson
+  })
+  })
+  .catch((error) => {
+  console.log(error);
+  })
+  }
+
+  addFriend = async (id) => {
+    const UID = await AsyncStorage.getItem('@UID');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
+    //Validation here...
+    
+    return fetch("http://10.0.2.2:3333/api/1.0.0/friendrequests/" + id , {
+    method: 'post',
+    'headers': {
+    'X-Authorization':  sessionToken
+    }
+    })
+    .then((response) => {
+    if(response.status === 200){
+    return response.json()
+    }else if(response.status === 401){
+    this.props.navigation.navigate("Login");
+    }else{
+    throw 'Something went wrong';
+    }
+    })
+    .then((responseJson) => {
+    this.setState({
+    isLoading: false,
+    userList: responseJson
+    })
+    })
+    .catch((error) => {
+    console.log(error);
+    })
+    }
+
+    acceptFriend = async (id) => {
+      const UID = await AsyncStorage.getItem('@UID');
+      const sessionToken = await AsyncStorage.getItem('@session_token');
+      //Validation here...
+      
+      return fetch("http://10.0.2.2:3333/api/1.0.0/friendrequests/" + id , {
+      method: 'post',
+      'headers': {
+      'X-Authorization':  sessionToken
+      }
+      })
+      .then((response) => {
+      if(response.status === 200){
+      return response.json()
+      }else if(response.status === 401){
+      this.props.navigation.navigate("Login");
+      }else{
+      throw 'Something went wrong';
+      }
+      })
+      .then((responseJson) => {
+      this.setState({
+      isLoading: false,
+      userList: responseJson
+      })
+      })
+      .catch((error) => {
+      console.log(error);
+      })
+      }
+
+    denyFriend = async (id) => {
+      const UID = await AsyncStorage.getItem('@UID');
+      const sessionToken = await AsyncStorage.getItem('@session_token');
+      //Validation here...
+      
+      return fetch("http://10.0.2.2:3333/api/1.0.0/friendrequests/" + id , {
+      method: 'delete',
+      'headers': {
+      'X-Authorization':  sessionToken
+      }
+      })
+      .then((response) => {
+      if(response.status === 200){
+      return response.json()
+      }else if(response.status === 401){
+      this.props.navigation.navigate("Login");
+      }else{
+      throw 'Something went wrong';
+      }
+      })
+      .then((responseJson) => {
+      this.setState({
+      isLoading: false,
+      userList: responseJson
+      })
+      })
+      .catch((error) => {
+      console.log(error);
+      })
+      }
 
 FriendRequests = async () => {
 const UID = await AsyncStorage.getItem('@UID');
@@ -104,13 +221,37 @@ console.log(error);
 render(){
 return (
 <View>
-  
-{/* Search Bar */}
+
+{/* Search Bar*/}
 <TextInput
-placeholder='enter friend name'
-style = {{borderWidth: 1}}
+placeholder='Enter name'
+onChangeText={(input) => this.setState({input})}
+value={this.state.input}
+style = {{borderWidth: 1, padding: 5}}
 borderColor = 'black'            
-/>
+/> 
+
+{/* Add Friend Button */}
+<View style = {styles.box1} >
+<Button title="Add Friend" color = "red"
+onPress={() => this.getUsers(this.input)} /> 
+</View> 
+
+<FlatList 
+data = {this.state.userList}
+renderItem={({item}) => (
+  <View>
+  <Text>{item.user_givenname} {item.user_familyname}</Text>
+  <Button  title = "Add" color = "red" onPress={() => this.addFriend(item.user_id)} />
+  </View>
+  )}
+  keyExtractor={(item,index) => item.user_id.toString()}
+  
+/> 
+
+
+
+
 
 {/* Friends */}
 <FlatList
@@ -130,16 +271,18 @@ renderItem={({item}) => (
 <View style={styles.box}>
 <Text>Friend Requests</Text>
 <Text>{item.first_name} {item.last_name}</Text>
-<Button title="Accept" />
-<Button title="Deny" />
+<Button title="Accept" onPress={() => this.acceptFriend(item.user_id)} />
+<Button title="Deny" onPress={() => this.denyFriend(item.user_id)}/>
 </View>
 )}
 keyExtractor={(item,index) => item.user_id.toString()}
 />
+
+
+
+
 </View>
-);
-} 
-}
+);}}
 
 const styles = StyleSheet.create({
   box: {

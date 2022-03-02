@@ -10,6 +10,8 @@ import LogoutPage from './components/logout';
 import FriendPage from './components/friends';
 import ProfilePage from './components/profile';
 
+import { Camera } from 'expo-camera';
+
 const Stack = createNativeStackNavigator();
 
 class App extends Component{
@@ -23,6 +25,7 @@ class App extends Component{
                     <Stack.Screen name="Logout" component={LogoutPage} />
                     <Stack.Screen name="Friends" component={FriendPage} />
                     <Stack.Screen name="Profile" component={ProfilePage} />
+                    
                 </Stack.Navigator>
                 
             </NavigationContainer>
