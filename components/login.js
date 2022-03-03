@@ -42,6 +42,9 @@ class LoginPage extends Component{
             console.log(error);
         })
     }
+    saveInfo = async () => {
+        await AsyncStorage.setItem('@email', email);
+    }
 
     render(){
         return (
@@ -67,11 +70,13 @@ class LoginPage extends Component{
                 <Button
                     title="Don't have an account?"
                     color="green"
-                    onPress={() => this.props.navigation.navigate("Signup")}
+                    onPress={() => {
+                    this.props.navigation.navigate("Signup")
+                    this.saveInfo(email)}}
                 />
             </ScrollView>
         )
-    }
+    };
 }
 
 export default LoginPage;

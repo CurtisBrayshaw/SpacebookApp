@@ -66,9 +66,10 @@ console.log(error);
 getUsers = async () => {
   const UID = await AsyncStorage.getItem('@UID');
   const sessionToken = await AsyncStorage.getItem('@session_token');
+  const search = this.state.input
   //Validation here...
   
-  return fetch("http://10.0.2.2:3333/api/1.0.0/search", {
+  return fetch("http://10.0.2.2:3333/api/1.0.0/search?q=" + search, {
   method: 'get',
   'headers': {
   'X-Authorization':  sessionToken
@@ -233,7 +234,7 @@ borderColor = 'black'
 
 {/* Add Friend Button */}
 <View style = {styles.box1} >
-<Button title="Add Friend" color = "red"
+<Button title="Search" color = "red"
 onPress={() => this.getUsers(this.input)} /> 
 </View> 
 

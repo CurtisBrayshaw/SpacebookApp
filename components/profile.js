@@ -136,8 +136,14 @@ return(
   <Text>Name:{this.state.info.first_name} {this.state.info.last_name}</Text>
   <Text>Email Address: {this.state.info.email}</Text>
   <Button title="Take Picture" color="green" onPress={() => this.cameraToggle()} />
+  <TouchableOpacity onPress={() => {this.props.navigation.navigate("Edit Profile")}}>
+  <Text style={styles.editbutton}> Edit </Text> 
+  </TouchableOpacity>
+  <Text>My Posts</Text>
   </View>
-      );
+  
+
+   );
     }
   }
 }
@@ -149,8 +155,11 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     backgroundColor:('lightblue'),
-    padding: 10,
+    padding: 10
   },
-
-
-})
+  editbutton:{
+    backgroundColor:('lightblue'),
+    padding: 10,
+    alignItems: "flex-end"
+  }
+});

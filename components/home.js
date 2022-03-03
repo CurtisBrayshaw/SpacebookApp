@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, Text, FlatList,Image, Button} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { backgroundColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
 class HomePage extends Component {
   constructor(props){
     super(props);
@@ -9,7 +10,6 @@ class HomePage extends Component {
       isLoading: false,
       listData: [],
       info: {},
-      photo: URL
     }
   }
 
@@ -30,13 +30,6 @@ class HomePage extends Component {
 
   componentWillUnmount() {
     this.unsubscribe();
-  };
-
-  checkLoggedIn = async () => {
-    const value = await AsyncStorage.getItem('@session_token');
-    if (value == null) {
-        this.props.navigation.navigate('Login');
-    }
   };
 
   getProfilePhoto = async () => {
@@ -63,11 +56,6 @@ class HomePage extends Component {
         console.log(error);
     })
   }
-
-
-
-
-
 
   getCurrentUser = async() => {
     console.log("Getting profile...");
@@ -102,28 +90,28 @@ class HomePage extends Component {
 
   render() {
       return (
-        <View>
-          
+        <View style={styles.page}>
+
           <View style={styles.box}>
           <Image style={styles.logo} source={{uri: this.state.photo}}/>
-          <Text>{this.state.info.first_name} {this.state.info.last_name}</Text>
+          <Text>Name: {this.state.info.first_name} {this.state.info.last_name} </Text>
+          <Text>Friends:{this.state.info.friend_count} </Text>
           </View>
-
-          <Button style={styles.button}
-                title="Logout"
-                color="green"
-                onPress={() => this.props.navigation.navigate("Logout")}
-          />
-          <Button style={styles.button}
-                title="Friends"
-                color="green"
-                onPress={() => this.props.navigation.navigate("Friends")}
-          />
-          <Button style={styles.button}
-                title="Profile"
-                color="green"
-                onPress={() => this.props.navigation.navigate("Profile")}               
-          />
+            
+              <View style={styles.button}>
+              <Button 
+                  title="Friends"
+                  onPress={() => this.props.navigation.navigate("Friends")}
+              />
+              <Button 
+                  title="Profile"
+                  onPress={() => this.props.navigation.navigate("Profile")}               
+              />
+              <Button 
+                  title="Logout"
+                  onPress={() => this.props.navigation.navigate("Logout")}
+              />
+            </View>
         </View>
       );
     }
@@ -131,20 +119,33 @@ class HomePage extends Component {
   }
 const styles = StyleSheet.create({
   box: {
-  
-    backgroundColor:('lightblue'),
+    backgroundColor:('white'),
     padding: 10,
     
   },
   button: {
-  
-    backgroundColor:('lightblue'),
-    padding: 10,
-    
+  flexWrap: 'wrap',
+  alignContent: 'stretch',
+  justifyContent: 'flex-start',
+  alignItems: 'flex-end',
+  color: "green",
+  width: 80,
+  height: 300,
+  flexDirection: 'row',
   },
+
   logo: {
+    flex:1,
     width: 50,
     height: 50
+  },
+
+  page: {
+    flex:1,
+    padding:5,
+    width: 500,
+    height: 500,
+    backgroundColor:('lightblue'),
   }
 })
 
