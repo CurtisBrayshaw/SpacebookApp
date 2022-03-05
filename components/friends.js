@@ -88,6 +88,7 @@ getUsers = async () => {
   this.setState({
   isLoading: false,
   userList: responseJson
+  
   })
   })
   .catch((error) => {
@@ -232,12 +233,18 @@ style = {{borderWidth: 1, padding: 5}}
 borderColor = 'black'            
 /> 
 
-{/* Add Friend Button */}
+{/* Search Button */}
 <View style = {styles.box1} >
 <Button title="Search" color = "red"
 onPress={() => this.getUsers(this.input)} /> 
 </View> 
 
+{/* Friends Text */}
+<View> 
+<Text> Friends </Text> 
+</View>
+
+{/* Show Potential Friends */}
 <FlatList 
 data = {this.state.userList}
 renderItem={({item}) => (
@@ -250,16 +257,13 @@ renderItem={({item}) => (
   
 /> 
 
-
-
-
-
 {/* Friends */}
 <FlatList
 data={this.state.data}
 renderItem={({item}) => (
-<View>
+<View style={styles.box}>
 <Text>{item.user_givenname} {item.user_familyname}</Text>
+<Button title="Profile" onPress={() => this.acceptFriend(item.user_id)}/>
 </View>
 )}
 keyExtractor={(item,index) => item.user_id.toString()}
@@ -269,7 +273,7 @@ keyExtractor={(item,index) => item.user_id.toString()}
 <FlatList
 data={this.state.requestList}
 renderItem={({item}) => (
-<View style={styles.box}>
+<View>
 <Text>Friend Requests</Text>
 <Text>{item.first_name} {item.last_name}</Text>
 <Button title="Accept" onPress={() => this.acceptFriend(item.user_id)} />

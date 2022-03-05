@@ -12,6 +12,7 @@ class ProfilePage extends Component{
           info: {},
           hasPermission: null,
           type: Camera.Constants.Type.back,
+          postsData: []
       }
   }
 
@@ -28,7 +29,7 @@ class ProfilePage extends Component{
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
-
+    this.getUserPosts();
     this.getCurrentUser();
   };
 
@@ -77,6 +78,39 @@ class ProfilePage extends Component{
             console.log(error);
         })
   }
+  sendToServer = async (data) => {
+    // Get these from AsyncStorage
+    let id = 10;
+    let token = "a3b0601e54775e60b01664b1a5273d54"
+    let res = await fetch(data.base64);
+    let blob = await res.blob();
+
+    return fetch("http://localhost:3333/api/1.0.0/user/" + id + "/photo", {
+        method: "POST",
+        headers: {
+            "Content-Type": "image/png",
+            "X-Authorization": token
+        },
+        body: blob
+    })
+    .then((response) => {
+        console.log("Picture added", response);
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+}
+
+  takePicture = async () => {
+      if(this.camera){
+          const options = {
+              quality: 0.5, 
+              base64: true,
+              onPictureSaved: (data) => this.sendToServer(data)
+          };
+          await this.camera.takePictureAsync(options); 
+      } 
+  }
 
   getCurrentUser = async() => {
     console.log("Getting profile...");
@@ -102,19 +136,61 @@ class ProfilePage extends Component{
     });
   }
 
+  getUserPosts = async() => {
+    console.log("Getting posts...");
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/post", {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Authorization': session_token
+        }
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+            //isLoading: false,
+            postsData: responseJson
+        })
+        console.log(this.state.postsData)
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+  }
 
-  checkLoggedIn = async () => {
-      const value = await AsyncStorage.getItem('@session_token');
-      if (value == null) {
-          this.props.navigation.navigate('Login');
-      }
-    };
+    likePost = async(postID) => {
+    console.log("Post Liked");
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/post/" + postID + '/like', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Authorization': session_token
+        }
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+            //isLoading: false,
+            postsData: responseJson
+        })
+        console.log(this.state.postsData)
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+  }
 
 render(){
   if(this.state.hasPermission){
 return(
   <View style={styles.button}>
-          <Camera style={styles.button} type={this.state.type}>
+          <Camera style={styles.button} type={this.state.type} ref={ref => this.camera = ref}>
             <View>
               <TouchableOpacity
                 onPress={() => {
@@ -126,6 +202,17 @@ return(
                 }}>
                 <Text style={styles.text}> Flip </Text>
               </TouchableOpacity>
+
+
+
+              <TouchableOpacity
+                onPress={() => {
+                  this.takePicture();}}>
+                <Text style={styles.text}> Capture </Text>
+              </TouchableOpacity>
+
+              
+              
             </View>
           </Camera>
         </View>
@@ -139,10 +226,36 @@ return(
   <TouchableOpacity onPress={() => {this.props.navigation.navigate("Edit Profile")}}>
   <Text style={styles.editbutton}> Edit </Text> 
   </TouchableOpacity>
-  <Text>My Posts</Text>
-  </View>
   
+  {/* Search Bar*/}
+  <TextInput
+  placeholder='Write a post'
+  onChangeText={(input) => this.setState({input})}
+  value={this.state.input}
+  style = {{borderWidth: 1, padding: 5}}
+  borderColor = 'black'            
+  /> 
+      <View>
+      <Text>My Posts</Text>
+      <FlatList 
+      data = {this.state.postsData}
+      renderItem={({item}) => (
+      <View style = {styles.posts}>
+      <Text>{item.author.first_name} {item.author.last_name} {item.timestamp}</Text>
+      <Text>{item.text}</Text>
+      <Text>Likes: {item.numLikes} </Text>
+      <TouchableOpacity onPress={() => this.likePost(item.post_id)}>
+      <Text style={styles.editbutton}> Like </Text> 
+      </TouchableOpacity>
+      </View>
+      )}
+      keyExtractor={(item,index) => item.post_id.toString()}
+      /> 
+      </View>
 
+
+
+  </View>
    );
     }
   }
@@ -158,8 +271,14 @@ const styles = StyleSheet.create({
     padding: 10
   },
   editbutton:{
-    backgroundColor:('lightblue'),
+    backgroundColor:('white'),
     padding: 10,
     alignItems: "flex-end"
+  },
+  posts:{
+    backgroundColor:('lightblue'),
+    margin: 5,
+    padding: 0,
+    alignItems: "flex-start"
   }
 });

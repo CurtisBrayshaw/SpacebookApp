@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, TextInput, Button } from 'react-native';
+import { ScrollView, TextInput, Button,StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class LoginPage extends Component{
@@ -78,5 +78,6 @@ class LoginPage extends Component{
         )
     };
 }
+
 
 export default LoginPage;

@@ -30,7 +30,12 @@ class EditPage extends Component {
       componentWillUnmount() {
         this.unsubscribe();
       };
+async updateProfile(){
 
+
+
+  
+}
 render() {
     return (
       <View>
@@ -57,7 +62,7 @@ render() {
             value={this.state.email}
             style={{padding:5, borderWidth:1, margin:5}}
         />
-       
+       <Button title="Submit" color="green" onPress={() => this.cameraToggle()} />
         </View>
     );
   }
