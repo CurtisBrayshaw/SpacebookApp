@@ -2,17 +2,18 @@ import React, {Component} from 'react';
 import {StyleSheet, View, Text, FlatList,Image, Button} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { backgroundColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
+
 class HomePage extends Component {
   constructor(props){
     super(props);
-
     this.state = {
       isLoading: false,
       listData: [],
       info: {},
+      picURL: ''
     }
   }
-
+  
   checkLoggedIn = async () => {
     const value = await AsyncStorage.getItem('@session_token');
     if (value == null) {
@@ -31,31 +32,6 @@ class HomePage extends Component {
   componentWillUnmount() {
     this.unsubscribe();
   };
-
-  getProfilePhoto = async () => {
-
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    return fetch ('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/photo", {
-      headers: {
-          'X-Authorization': session_token
-      }
-    })
-    .then ((res) => {
-      return res.blob();
-    })
-
-    .then((resBlob) => {
-      let data = URL.createObjectURL(resBlob);
-      this.setState({
-        isLoading: false,
-        photo: data
-      })
-    })
-    .catch((error) => {
-        console.log(error);
-    })
-  }
 
   getCurrentUser = async() => {
     console.log("Getting profile...");
@@ -76,7 +52,7 @@ class HomePage extends Component {
             info: responseJson
             
         })
-        this.getProfilePhoto();
+        getProfilePhoto();
     })
     .then(async (responseJson) => {
       console.log(responseJson);
@@ -88,12 +64,33 @@ class HomePage extends Component {
     });
   }
 
+  getProfilePhoto = async () => {
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch ('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/photo", {
+      headers: {
+          method: 'get',
+          headers:{
+          'X-Authorization': session_token,
+          'Content-Type': 'application/json'
+          }
+        }
+    })
+    .then((resBlob) => {
+      let data = URL.createObjectURL(resBlob);
+      this.setState({picURL:data});
+    })
+    .catch((error) => {
+        console.log(error);
+    })
+  }
+
   render() {
       return (
         <View style={styles.page}>
 
           <View style={styles.box}>
-          <Image style={styles.logo} source={{uri: this.state.photo}}/>
+          {/* <Image style={styles.logo} source={this.state.picURL}/> */}
           <Text>Name: {this.state.info.first_name} {this.state.info.last_name} </Text>
           <Text>Friends:{this.state.info.friend_count} </Text>
           </View>

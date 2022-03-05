@@ -160,30 +160,51 @@ class ProfilePage extends Component{
         console.log(error);
     });
   }
+  
 
-    likePost = async(postID) => {
+  async submitPost(input) {
+    const state = {
+    text: input
+    }  
+    console.log("Post Submitted");
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/post", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Authorization': session_token
+        },
+        body: JSON.stringify(state)
+        });
+  }
+  
+
+
+    async likePost (postID) {
     console.log("Post Liked");
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/post/" + postID + '/like', {
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-Authorization': session_token
         }
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-        console.log(responseJson);
-        this.setState({
-            //isLoading: false,
-            postsData: responseJson
-        })
-        console.log(this.state.postsData)
+  }
+
+  async deletePost (postID) {
+    console.log("Post Deleted");
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/post/" + postID, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Authorization': session_token
+        }
     })
-    .catch((error) => {
-        console.log(error);
-    });
   }
 
 render(){
@@ -227,31 +248,45 @@ return(
   <Text style={styles.editbutton}> Edit </Text> 
   </TouchableOpacity>
   
-  {/* Search Bar*/}
+  {/* Make Post*/}
+  <View>
   <TextInput
   placeholder='Write a post'
   onChangeText={(input) => this.setState({input})}
   value={this.state.input}
   style = {{borderWidth: 1, padding: 5}}
   borderColor = 'black'            
+  />
+  <Button title="Make Post" color="green" onPress={() => this.submitPost(this.state.input)} />
+  </View>
+
+  {/* My Posts */}
+  <View>
+  <Text>My Posts</Text>
+  <FlatList 
+  data = {this.state.postsData}
+  renderItem={({item}) => (
+  <View style = {styles.posts}>
+  <Text>{item.author.first_name} {item.author.last_name} {item.timestamp}</Text>
+  <Text>{item.text}</Text>
+  <Text>Likes: {item.numLikes} </Text>
+
+  {/* Like Post Button */}
+  <TouchableOpacity onPress={() => this.likePost(item.post_id)}>
+  <Text style={styles.editbutton}> Like </Text>
+  </TouchableOpacity>
+
+  {/* Delete Post Button */}
+  <TouchableOpacity onPress={() => this.deletePost(item.post_id)}>
+  <Text style={styles.editbutton}> Delete </Text>
+  </TouchableOpacity>
+
+
+  </View>
+  )}
+  keyExtractor={(item,index) => item.post_id.toString()}
   /> 
-      <View>
-      <Text>My Posts</Text>
-      <FlatList 
-      data = {this.state.postsData}
-      renderItem={({item}) => (
-      <View style = {styles.posts}>
-      <Text>{item.author.first_name} {item.author.last_name} {item.timestamp}</Text>
-      <Text>{item.text}</Text>
-      <Text>Likes: {item.numLikes} </Text>
-      <TouchableOpacity onPress={() => this.likePost(item.post_id)}>
-      <Text style={styles.editbutton}> Like </Text> 
-      </TouchableOpacity>
-      </View>
-      )}
-      keyExtractor={(item,index) => item.post_id.toString()}
-      /> 
-      </View>
+  </View>
 
 
 
