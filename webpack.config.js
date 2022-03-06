@@ -6,8 +6,8 @@ module.exports = async function (env, argv) {
   // Customize the config before returning it.
   return config;
   config.resolve.alias = {
-    react: path.resolve('./node_modules/react')
-  }
+    react: path.resolve('./node_modules/react'),
+  };
 
   return config;
 };
