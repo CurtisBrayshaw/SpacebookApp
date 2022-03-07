@@ -1,20 +1,20 @@
+/* eslint-disable react/jsx-filename-extension */
+
 import React, { Component } from 'react';
 import {
-  ScrollView, TextInput, Button, View, FlatList, Text, StyleSheet, TouchableOpacity,
+  ScrollView, TextInput, Image, Button, View, FlatList, Text, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Camera } from 'expo-camera';
+
 
 class ProfilePage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      data: [],
       info: {},
-      hasPermission: null,
-      type: Camera.Constants.Type.back,
       postsData: [],
+      UID: null,
     };
   }
 
@@ -26,8 +26,6 @@ class ProfilePage extends Component {
   };
 
   async componentDidMount() {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    this.setState({ hasPermission: status === 'denied' });
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
@@ -36,7 +34,6 @@ class ProfilePage extends Component {
   }
 
   componentWillUnmount() {
-
   }
 
   checkLoggedIn = async () => {
@@ -44,41 +41,6 @@ class ProfilePage extends Component {
     if (value == null) {
       this.props.navigation.navigate('Login');
     }
-  };
-
-  cameraToggle = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    this.setState({ hasPermission: status === 'granted' });
-  };
-
-  showfriends = async () => {
-    const UID = await AsyncStorage.getItem('@UID');
-    const sessionToken = await AsyncStorage.getItem('@session_token');
-    // Validation here...
-
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/6', {
-      headers: {
-        'X-Authorization': sessionToken,
-      },
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } if (response.status === 401) {
-          this.props.navigation.navigate('Login');
-        } else {
-          throw 'Something went wrong';
-        }
-      })
-      .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          data: responseJson,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
   };
 
   sendToServer = async (data) => {
@@ -102,17 +64,6 @@ class ProfilePage extends Component {
       .catch((err) => {
         console.log(err);
       });
-  };
-
-  takePicture = async () => {
-    if (this.camera) {
-      const options = {
-        quality: 0.5,
-        base64: true,
-        onPictureSaved: (data) => this.sendToServer(data),
-      };
-      await this.camera.takePictureAsync(options);
-    }
   };
 
   getCurrentUser = async () => {
@@ -157,7 +108,7 @@ class ProfilePage extends Component {
           // isLoading: false,
           postsData: responseJson,
         });
-        console.log(this.state.postsData);
+
       })
       .catch((error) => {
         console.log(error);
@@ -179,18 +130,7 @@ class ProfilePage extends Component {
       },
       body: JSON.stringify(state),
     });
-  }
-
-  async likePost(postID) {
-    console.log('Post Liked');
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post/${postID}/like`, {
-      method: 'POST',
-      headers: {
-        'X-Authorization': session_token,
-      },
-    });
+    
   }
 
   async deletePost(postID) {
@@ -203,42 +143,24 @@ class ProfilePage extends Component {
         'Content-Type': 'application/json',
         'X-Authorization': session_token,
       },
-    });
+    })
+    .then((response) => {})
+      .then((response) => {
+        this.getUserPosts();
+        this.setState({
+          // isLoading: false,
+          postsData: responseJson,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   render() {
-    if (this.state.hasPermission) {
-      return (
-        <View style={styles.button}>
-          <Camera style={styles.button} type={this.state.type} ref={(ref) => this.camera = ref}>
-            <View>
-              <TouchableOpacity
-                onPress={() => {
-                  const type = type === Camera.Constants.Type.back
-                    ? Camera.Constants.Type.front
-                    : Camera.Constants.Type.back;
-
-                  this.setState({ type });
-                }}
-              >
-                <Text style={styles.text}> Flip </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  this.takePicture();
-                }}
-              >
-                <Text style={styles.text}> Capture </Text>
-              </TouchableOpacity>
-
-            </View>
-          </Camera>
-        </View>
-      );
-    }
     return (
       <View>
+        <Image style={styles.logo} source={{ uri: this.state.photo }} />
         <Text>
           Name:
           {this.state.info.first_name}
@@ -249,7 +171,6 @@ class ProfilePage extends Component {
           Email Address:
           {this.state.info.email}
         </Text>
-        <Button title="Take Picture" color="green" onPress={() => this.cameraToggle()} />
         <TouchableOpacity onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
           <Text style={styles.editbutton}> Edit </Text>
         </TouchableOpacity>
@@ -286,9 +207,9 @@ class ProfilePage extends Component {
                   {item.numLikes}
                 </Text>
 
-                {/* Like Post Button */}
-                <TouchableOpacity onPress={() => this.likePost(item.post_id)}>
-                  <Text style={styles.editbutton}> Like </Text>
+                {/* Edit Post Button */}
+                <TouchableOpacity onPress={() => this.editPost(item.post_id)}>
+                  <Text style={styles.editbutton}> Edit </Text>
                 </TouchableOpacity>
 
                 {/* Delete Post Button */}

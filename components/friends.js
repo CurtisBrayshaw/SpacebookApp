@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-filename-extension */
 import React, { Component } from 'react';
 import {
   ScrollView, TextInput, StyleSheet, Button, View, FlatList, Text, displayAlert,
@@ -20,7 +21,7 @@ class FriendPage extends Component {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
-    this.Showfriends();
+    this.getFriends();
     this.FriendRequests();
   }
 
@@ -36,7 +37,7 @@ class FriendPage extends Component {
     }
   };
 
-  Showfriends = async () => {
+  getFriends = async () => {
     const UID = await AsyncStorage.getItem('@UID');
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
@@ -64,6 +65,10 @@ class FriendPage extends Component {
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  asyncFriendslist = async () => {
+    await AsyncStorage.setItem('@friends', this.state.data);
   };
 
   getUsers = async () => {

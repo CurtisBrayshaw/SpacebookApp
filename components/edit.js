@@ -1,18 +1,20 @@
+/* eslint-disable react/jsx-filename-extension */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Text, FlatList, Image, Button, TextInput,
+  StyleSheet, View, Text, FlatList, Image, Button, TextInput, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Camera } from 'expo-camera';
 
 class EditPage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isLoading: false,
-      listData: [],
       info: {},
       email: null,
+      hasPermission: null,
+      type: Camera.Constants.Type.back,
     };
   }
 
@@ -24,6 +26,8 @@ class EditPage extends Component {
   };
 
   async componentDidMount() {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    this.setState({ hasPermission: status === 'denied' });
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
@@ -33,16 +37,61 @@ class EditPage extends Component {
     this.unsubscribe();
   }
 
+  cameraToggle = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    this.setState({ hasPermission: status === 'granted' });
+  };
+
+  takePicture = async () => {
+    if (this.camera) {
+      const options = {
+        quality: 0.5,
+        base64: true,
+        onPictureSaved: (data) => this.sendToServer(data),
+      };
+      await this.camera.takePictureAsync(options);
+    }
+  };
+
   async updateProfile() {
 
   }
 
   render() {
+    if (this.state.hasPermission) {
+      return (
+        <View style={styles.button}>
+          <Camera style={styles.button} type={this.state.type} ref={(ref) => this.camera = ref}>
+            <View>
+              <TouchableOpacity
+                onPress={() => {
+                  const type = type === Camera.Constants.Type.back
+                    ? Camera.Constants.Type.front
+                    : Camera.Constants.Type.back;
+
+                  this.setState({ type });
+                }}
+              >
+                <Text style={styles.text}> Flip </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  this.takePicture();
+                }}
+              >
+                <Text style={styles.text}> Capture </Text>
+              </TouchableOpacity>
+
+            </View>
+          </Camera>
+        </View>
+      );
+    }
     return (
       <View>
-
         <View style={styles.box}>
-          <Image style={styles.logo} source={{ uri: this.state.photo }} />
+          <Button title="Take Picture" color="green" onPress={() => this.cameraToggle()} />
           <Text>
             {this.state.info.first_name}
             {' '}
@@ -52,22 +101,22 @@ class EditPage extends Component {
         <Text>Enter New First Name</Text>
         <TextInput
           placeholder="Enter First Name"
-          value={this.state.firstName}
+          inputFN={this.state.firstName}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Text>Enter New Surname</Text>
         <TextInput
           placeholder="Enter Last Name"
-          value={this.state.lastName}
+          inputSN={this.state.lastName}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Text>Enter New Email Address</Text>
         <TextInput
           placeholder="Enter New Email Address"
-          value={this.state.email}
+          inputEmail={this.state.email}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
-        <Button title="Submit" color="green" onPress={() => this.cameraToggle()} />
+        <Button title="Submit" color="green" onPress={() => this.updateProfile(inputFN, inputSN, inputEmail)} />
       </View>
     );
   }
@@ -84,6 +133,22 @@ const styles = StyleSheet.create({
 
     backgroundColor: ('pink'),
     padding: 10,
+  },
+  button: {
+    flex: 1,
+    backgroundColor: ('lightblue'),
+    padding: 10,
+  },
+  editbutton: {
+    backgroundColor: ('white'),
+    padding: 10,
+    alignItems: 'flex-end',
+  },
+  posts: {
+    backgroundColor: ('lightblue'),
+    margin: 5,
+    padding: 0,
+    alignItems: 'flex-start',
   },
 });
 

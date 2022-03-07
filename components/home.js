@@ -1,8 +1,9 @@
+/* eslint-disable react/sort-comp */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable linebreak-style */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Text, Button,
+  StyleSheet, View, Text, Button, Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -11,6 +12,7 @@ class HomePage extends Component {
     super(props);
     this.state = {
       info: {},
+      picURL: null,
     };
   }
 
@@ -25,13 +27,36 @@ class HomePage extends Component {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
-
+    this.getProfilePhoto();
     this.getCurrentUser();
   }
 
   componentWillUnmount() {
     this.unsubscribe();
   }
+
+  getProfilePhoto = async () => {
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/13/photo`, {
+      method: 'GET',
+      headers: {
+        'X-Authorization': session_token,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        return res.blob();
+      })
+      .then((resBlob) => {
+        const data = URL.createObjectURL(resBlob);
+        console.log(data);
+        this.state.picURL = data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   getCurrentUser = async () => {
     console.log('Getting profile...');
@@ -46,51 +71,31 @@ class HomePage extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
+        // console.log(responseJson);
         this.setState({
           // isLoading: false,
           info: responseJson,
 
         });
-        getProfilePhoto();
       })
       .then(async (responseJson) => {
-        console.log(responseJson);
-        await AsyncStorage.setItem('@first_name', responseJson.first_name);
-        await AsyncStorage.setItem('@last_name', responseJson.last_name);
+        // console.log(responseJson);
+        // await AsyncStorage.setItem('@first_name', responseJson.first_name);
+        // await AsyncStorage.setItem('@last_name', responseJson.last_name);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  // getProfilePhoto = async () => {
-  //   const session_token = await AsyncStorage.getItem('@session_token');
-  //   const UID = await AsyncStorage.getItem('@UID');
-  //   return fetch ('http://10.0.2.2:3333/api/1.0.0/user/' + UID + "/photo", {
-  //     headers: {
-  //         method: 'get',
-  //         headers:{
-  //         'X-Authorization': session_token,
-  //         'Content-Type': 'application/json'
-  //         }
-  //       }
-  //   })
-  //   .then((resBlob) => {
-  //     let data = URL.createObjectURL(resBlob);
-  //     this.setState({picURL:data});
-  //   })
-  //   .catch((error) => {
-  //       console.log(error);
-  //   })
-  // }
-
   render() {
     return (
       <View style={styles.page}>
 
         <View style={styles.box}>
-          {/* <Image style={styles.logo} source={this.state.picURL}/> */}
+          <Image style={styles.logo} source={{
+          uri : this.state.picURL
+          }} />
           <Text>
             Name:
             {' '}
@@ -142,7 +147,6 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    flex: 1,
     width: 50,
     height: 50,
   },

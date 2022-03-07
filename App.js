@@ -14,7 +14,6 @@ import LogoutPage from './components/logout';
 import FriendPage from './components/friends';
 import ProfilePage from './components/profile';
 import EditPage from './components/edit';
-import FriendProfilePage from './components/friendprofile';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,7 +31,6 @@ class App extends Component {
           <Stack.Screen name="Friends" component={FriendPage} />
           <Stack.Screen name="Profile" component={ProfilePage} />
           <Stack.Screen name="Edit Profile" component={EditPage} />
-          <Stack.Screen name="Friends Profile" component={FriendProfilePage} />
         </Stack.Navigator>
 
       </NavigationContainer>

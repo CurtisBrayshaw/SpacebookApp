@@ -61,20 +61,14 @@ class HomePage extends Component {
           fontSize: 18, fontWeight: 'bold', padding: 5, margin: 5,
         }}
         >
-          If you leave me now, you'll take away the biggest part of me...
-        </Text>
-        <Text style={{
-          fontSize: 18, fontWeight: 'bold', padding: 5, margin: 5,
-        }}
-        >
-          ...Oooooohh, baby please don't go!
+          Really?
         </Text>
         <Button
-          title="I'm outta here"
+          title="Logout"
           onPress={() => this.logout()}
         />
         <Button
-          title="OK, take me home, country roads"
+          title="Home"
           color="darkblue"
           onPress={() => this.props.navigation.navigate('Home')}
         />

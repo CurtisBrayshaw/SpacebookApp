@@ -1,3 +1,6 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable no-throw-literal */
 import React, { Component } from 'react';
 import {
   ScrollView, TextInput, Button,
@@ -31,6 +34,7 @@ class LoginPage extends Component {
       }
     })
     .then(async (responseJson) => {
+      console.log(responseJson);
       await AsyncStorage.setItem('@session_token', responseJson.token);
       await AsyncStorage.setItem('@UID', responseJson.id.toString());
       this.props.navigation.navigate('Home');
