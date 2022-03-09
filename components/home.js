@@ -106,7 +106,6 @@ class HomePage extends Component {
           // isLoading: false,
           friendsData: responseJson,
         });
-        console.log (friendsData.post_id)
       })
       .catch((error) => {
         console.log(error);

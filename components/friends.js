@@ -22,7 +22,7 @@ class FriendPage extends Component {
       this.checkLoggedIn();
     });
     this.getFriends();
-    this.FriendRequests();
+    this.friendRequests();
   }
 
   componentWillUnmount() {
@@ -104,13 +104,13 @@ class FriendPage extends Component {
       });
   };
 
-  addFriend = async (id) => {
+  sendRequest = async (id) => {
     const UID = await AsyncStorage.getItem('@UID');
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/friendrequests/${id}`, {
-      method: 'post',
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${id}/friends`, {
+      method: 'POST',
       headers: {
         'X-Authorization': sessionToken,
       },
@@ -166,7 +166,7 @@ class FriendPage extends Component {
       });
   };
 
-  denyFriend = async (id) => {
+  denyFriend = async () => {
     const UID = await AsyncStorage.getItem('@UID');
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
@@ -197,15 +197,16 @@ class FriendPage extends Component {
       });
   };
 
-  FriendRequests = async () => {
+  friendRequests = async () => {
     const UID = await AsyncStorage.getItem('@UID');
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
     return fetch('http://192.168.0.48:3333/api/1.0.0/friendrequests', {
-      method: 'get',
+      method: 'GET',
       headers: {
         'X-Authorization': sessionToken,
+        'Content-Type': 'application/json',
       },
     })
       .then((response) => {
@@ -269,7 +270,7 @@ class FriendPage extends Component {
                 {' '}
                 {item.user_familyname}
               </Text>
-              <Button title="Add" color="red" onPress={() => this.addFriend(item.user_id)} />
+              <Button title="Request" color="red" onPress={() => this.sendRequest(item.user_id)} />
             </View>
           )}
           keyExtractor={(item, index) => item.user_id.toString()}
@@ -290,13 +291,13 @@ class FriendPage extends Component {
           )}
           keyExtractor={(item, index) => item.user_id.toString()}
         />
-
+        
         {/* Friend Requests */}
+        <Text>Friend Requests</Text>
         <FlatList
           data={this.state.requestList}
           renderItem={({ item }) => (
-            <View>
-              <Text>Friend Requests</Text>
+            <View style={styles.box}>
               <Text>
                 {item.first_name}
                 {' '}
@@ -308,7 +309,6 @@ class FriendPage extends Component {
           )}
           keyExtractor={(item, index) => item.user_id.toString()}
         />
-
       </View>
     );
   }
