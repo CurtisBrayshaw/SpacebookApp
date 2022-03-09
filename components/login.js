@@ -17,7 +17,7 @@ class LoginPage extends Component {
     };
   }
 
-  login = async () => fetch('http://10.0.2.2:3333/api/1.0.0/login', {
+  login = async () => fetch('http://192.168.0.48:3333/api/1.0.0/login', {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
@@ -42,10 +42,6 @@ class LoginPage extends Component {
     .catch((error) => {
       console.log(error);
     });
-
-  saveInfo = async () => {
-    await AsyncStorage.setItem('@email', email);
-  };
 
   render() {
     return (
@@ -73,7 +69,6 @@ class LoginPage extends Component {
           color="green"
           onPress={() => {
             this.props.navigation.navigate('Signup');
-            this.saveInfo(email);
           }}
         />
       </ScrollView>

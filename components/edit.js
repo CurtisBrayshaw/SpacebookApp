@@ -18,16 +18,9 @@ class EditPage extends Component {
     };
   }
 
-  checkLoggedIn = async () => {
-    const value = await AsyncStorage.getItem('@session_token');
-    if (value == null) {
-      this.props.navigation.navigate('Login');
-    }
-  };
-
   async componentDidMount() {
     const { status } = await Camera.requestCameraPermissionsAsync();
-    this.setState({ hasPermission: status === 'denied' });
+    this.setState({ hasPermission: status === 'Denied' });
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
@@ -37,10 +30,42 @@ class EditPage extends Component {
     this.unsubscribe();
   }
 
+  checkLoggedIn = async () => {
+    const value = await AsyncStorage.getItem('@session_token');
+    if (value == null) {
+      this.props.navigation.navigate('Login');
+    }
+  };
+
   cameraToggle = async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
     this.setState({ hasPermission: status === 'granted' });
   };
+
+  sendToServer = async (data) => {
+    // Get these from AsyncStorage
+    console.log("Sent to server..")
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+
+    let res = await fetch(data.base64);
+    let blob = await res.blob();
+
+    return fetch("http://192.168.0.48:3333/api/1.0.0/user/" + UID + "/photo", {
+        method: "POST",
+        headers: {
+            "Content-Type": "image/png",
+            "X-Authorization": session_token
+        },
+        body: blob
+    })
+    .then((response) => {
+        console.log("Picture added", response);
+    })
+    .catch((err) => {
+        console.log(err);
+    })
+}
 
   takePicture = async () => {
     if (this.camera) {
@@ -49,12 +74,30 @@ class EditPage extends Component {
         base64: true,
         onPictureSaved: (data) => this.sendToServer(data),
       };
+      console.log("picture taken")
       await this.camera.takePictureAsync(options);
     }
   };
 
-  async updateProfile() {
+  async updateProfile(inputFN, inputSN, inputEmail) {
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    const state = {
+      text: input,
+    };
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}`, {
+      method: 'GET',
+      headers: {
+        'X-Authorization': session_token,
+        'Content-Type': 'application/json',
+      },
+      body: {
 
+      }
+    })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   render() {
@@ -101,22 +144,33 @@ class EditPage extends Component {
         <Text>Enter New First Name</Text>
         <TextInput
           placeholder="Enter First Name"
-          inputFN={this.state.firstName}
+          onChangeText={(inputFN) => this.setState({ inputFN })}
+          FN={this.state.inputFN}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Text>Enter New Surname</Text>
         <TextInput
           placeholder="Enter Last Name"
-          inputSN={this.state.lastName}
+          onChangeText={(inputSN) => this.setState({ inputSN })}
+          SN={this.state.inputSN}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Text>Enter New Email Address</Text>
         <TextInput
           placeholder="Enter New Email Address"
-          inputEmail={this.state.email}
+          onChangeText={(inputEmail) => this.setState({ inputEmail })}
+          email={this.state.inputEmail}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
-        <Button title="Submit" color="green" onPress={() => this.updateProfile(inputFN, inputSN, inputEmail)} />
+        <Text>Enter New Password</Text>
+        <TextInput
+          placeholder="Enter New Password"
+          onChangeText={(inputPassword) => this.setState({ inputPassword })}
+          password={this.state.inputPassword}
+          style={{ padding: 5, borderWidth: 1, margin: 5 }}
+        />
+        <Button title="Submit" color="green" onPress={() => this.updateProfile(FN, SN ,email,password)} />
+        <Button title="Back" color="green" onPress={() => this.cameraToggle} />
       </View>
     );
   }

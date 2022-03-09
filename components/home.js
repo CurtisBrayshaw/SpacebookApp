@@ -3,7 +3,7 @@
 /* eslint-disable linebreak-style */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Text, Button, Image,
+  StyleSheet, View, Text, Button, Image, FlatList
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -13,6 +13,7 @@ class HomePage extends Component {
     this.state = {
       info: {},
       picURL: null,
+      UID: [],
     };
   }
 
@@ -29,6 +30,7 @@ class HomePage extends Component {
     });
     this.getProfilePhoto();
     this.getCurrentUser();
+    this.getFriends();
   }
 
   componentWillUnmount() {
@@ -38,7 +40,7 @@ class HomePage extends Component {
   getProfilePhoto = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/13/photo`, {
+    return fetch('http://192.168.0.48:3333/api/1.0.0/user/' + UID + '/photo', {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
@@ -49,8 +51,8 @@ class HomePage extends Component {
         return res.blob();
       })
       .then((resBlob) => {
+        console.log(resBlob);
         const data = URL.createObjectURL(resBlob);
-        console.log(data);
         this.state.picURL = data;
       })
       .catch((error) => {
@@ -62,7 +64,7 @@ class HomePage extends Component {
     console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -88,13 +90,61 @@ class HomePage extends Component {
       });
   };
 
+  getFriends = async () => {
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch('http://192.168.0.48:3333/api/1.0.0/user/' + UID + '/friends', {
+      method: 'GET',
+      headers: {
+        'X-Authorization': session_token,
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+          // isLoading: false,
+          friendsData: responseJson,
+        });
+        console.log (friendsData.post_id)
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  getPosts = async (friendsData) => {
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch('http://192.168.0.48:3333/api/1.0.0/user/' + this.state.UID +  '/post' ,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': session_token,
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+          // isLoading: false,
+          postsData: responseJson,
+        });
+
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   render() {
     return (
       <View style={styles.page}>
 
         <View style={styles.box}>
           <Image style={styles.logo} source={{
-          uri : this.state.picURL
+          url : this.state.picURL
           }} />
           <Text>
             Name:
@@ -110,6 +160,36 @@ class HomePage extends Component {
             {' '}
           </Text>
         </View>
+
+        {/* Posts Feed */}
+          {/* <Text>My Posts</Text>
+          <FlatList
+            data={this.state.postsData}
+            renderItem={({ item }) => (
+              <View>
+                <Text>
+                  {item.author.first_name}
+                  {' '}
+                  {item.author.last_name}
+                  {' '}
+                  {item.timestamp}
+                </Text>
+                <Text>{item.text}</Text>
+                <Text>
+                  Likes:
+                  {item.numLikes}
+                </Text> */}
+                {/* <TouchableOpacity onPress={() => this.editPost(item.post_id)}>
+                  <Text style={styles.editbutton}> Edit </Text>
+                </TouchableOpacity> */}
+                {/* <TouchableOpacity onPress={() => this.deletePost(item.post_id)}>
+                  <Text style={styles.editbutton}> Delete </Text>
+                </TouchableOpacity> */}
+              {/* </View>
+            )}
+            keyExtractor={(item, index) => item.post_id.toString()}
+          /> */}
+        
 
         <View style={styles.button}>
           <Button
@@ -150,13 +230,18 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
   },
-
   page: {
     flex: 1,
     padding: 5,
     width: 500,
     height: 500,
     backgroundColor: ('lightblue'),
+  },
+  posts: {
+    backgroundColor: ('lightblue'),
+    margin: 5,
+    padding: 0,
+    alignItems: 'flex-start',
   },
 });
 

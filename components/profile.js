@@ -50,7 +50,7 @@ class ProfilePage extends Component {
     const res = await fetch(data.base64);
     const blob = await res.blob();
 
-    return fetch(`http://localhost:3333/api/1.0.0/user/${id}/photo`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${id}/photo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'image/png',
@@ -70,7 +70,7 @@ class ProfilePage extends Component {
     console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ class ProfilePage extends Component {
     console.log('Getting posts...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/post`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -122,22 +122,32 @@ class ProfilePage extends Component {
     console.log('Post Submitted');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/post`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Authorization': session_token,
       },
       body: JSON.stringify(state),
-    });
-    
+    })
+    .then((response) => {})
+      .then((response) => {
+        this.getUserPosts();
+        this.setState({
+          // isLoading: false,
+          postsData: responseJson,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   async deletePost(postID) {
     console.log('Post Deleted');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post/${postID}`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/post/${postID}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

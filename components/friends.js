@@ -42,7 +42,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/friends`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/friends`, {
       headers: {
         'X-Authorization': sessionToken,
       },
@@ -77,7 +77,7 @@ class FriendPage extends Component {
     const search = this.state.input;
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/search?q=${search}`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/search?q=${search}`, {
       method: 'get',
       headers: {
         'X-Authorization': sessionToken,
@@ -109,7 +109,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/friendrequests/${id}`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/friendrequests/${id}`, {
       method: 'post',
       headers: {
         'X-Authorization': sessionToken,
@@ -140,7 +140,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/friendrequests/${id}`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/friendrequests/${id}`, {
       method: 'post',
       headers: {
         'X-Authorization': sessionToken,
@@ -171,7 +171,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/friendrequests/${id}`, {
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/friendrequests/${id}`, {
       method: 'delete',
       headers: {
         'X-Authorization': sessionToken,
@@ -202,7 +202,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch('http://10.0.2.2:3333/api/1.0.0/friendrequests', {
+    return fetch('http://localhost:3333/api/1.0.0/friendrequests', {
       method: 'get',
       headers: {
         'X-Authorization': sessionToken,
@@ -228,10 +228,14 @@ class FriendPage extends Component {
       });
   };
 
+  vistFriendProfile = async (UID) => {
+    await AsyncStorage.setItem('@friendUID', UID.toString());
+    this.props.navigation.navigate('Friend Profile')
+  };
+
   render() {
     return (
       <View>
-
         {/* Search Bar */}
         <TextInput
           placeholder="Enter name"
@@ -281,7 +285,7 @@ class FriendPage extends Component {
                 {' '}
                 {item.user_familyname}
               </Text>
-              <Button title="Profile" onPress={() => this.props.navigation.navigate('Friends Profile')} />
+              <Button title="Profile" onPress={() => this.vistFriendProfile(item.user_id)} />
             </View>
           )}
           keyExtractor={(item, index) => item.user_id.toString()}
