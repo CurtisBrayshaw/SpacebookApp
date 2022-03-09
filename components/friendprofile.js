@@ -92,7 +92,52 @@ class FriendProfilePage extends Component {
         console.log(error);
       });
   };
-
+  async likePost(friendID,PID) {
+    
+    console.log('Post Liked');
+    const session_token = await AsyncStorage.getItem('@session_token');
+    console.log(friendID)
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/` + friendID + `/post/${PID}/like`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': session_token,
+      },
+    })
+    .then((response) => {})
+      .then((response) => {
+        this.getUserPosts();
+        this.setState({
+          // isLoading: false,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+  async unlikePost(friendID,PID) {
+    
+    console.log('Post Liked');
+    const session_token = await AsyncStorage.getItem('@session_token');
+    console.log(friendID)
+    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/` + friendID + `/post/${PID}/like`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': session_token,
+      },
+    })
+    .then((response) => {})
+      .then((response) => {
+        this.getUserPosts();
+        this.setState({
+          // isLoading: false,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
   render() {
     return (
       <View>
@@ -128,6 +173,14 @@ class FriendProfilePage extends Component {
                   Likes: 
                   {item.numLikes}
                 </Text>
+                
+                <TouchableOpacity onPress={() => this.likePost(item.author.user_id, item.post_id)}>
+                  <Text style={styles.editbutton}> Like </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => this.unlikePost(item.author.user_id, item.post_id)}>
+                  <Text style={styles.editbutton}> Unlike </Text>
+                </TouchableOpacity>
+                
               </View>
             )}
             keyExtractor={(item, index) => item.post_id.toString()}
@@ -159,4 +212,5 @@ const styles = StyleSheet.create({
     padding: 0,
     alignItems: 'flex-start',
   },
+  
 });

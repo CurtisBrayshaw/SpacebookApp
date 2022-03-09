@@ -6,6 +6,7 @@ import {
   StyleSheet, View, Text, Button, Image, FlatList
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { backgroundColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
 
 class HomePage extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class HomePage extends Component {
       UID: [],
     };
   }
+
 
   checkLoggedIn = async () => {
     const value = await AsyncStorage.getItem('@session_token');
@@ -44,21 +46,23 @@ class HomePage extends Component {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
-        'Content-Type': 'application/json',
       },
     })
-      .then((res) => {
-        return res.blob();
-      })
-      .then((resBlob) => {
-        console.log(resBlob);
-        const data = URL.createObjectURL(resBlob);
-        this.state.picURL = data;
-      })
-      .catch((error) => {
-        console.log(error);
+    .then((res) => {
+      return res.blob()
+    })
+    .then((resBlob) => {
+      let data = URL.createObjectURL(base64Str);
+      
+      this.setState({
+        photo: data,
+        isLoading: false,
       });
-  };
+    })
+    .catch((err) => {
+      console.log('error', err);
+    });
+};
 
   getCurrentUser = async () => {
     console.log('Getting profile...');
@@ -81,7 +85,7 @@ class HomePage extends Component {
       })
       .then(async (responseJson) => {
         await AsyncStorage.setItem('@first_name', responseJson.info.first_name);
-        await AsyncStorage.setItem('@last_name', responseJson.last_name);
+        await AsyncStorage.setItem('@last_name', responseJson.info.last_name);
         await AsyncStorage.setItem('@email', responseJson.info.email);
       })
       .catch((error) => {
@@ -101,7 +105,6 @@ class HomePage extends Component {
     })
     .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
         this.setState({
           // isLoading: false,
           friendsData: responseJson,
@@ -141,9 +144,17 @@ class HomePage extends Component {
       <View style={styles.page}>
 
         <View style={styles.box}>
-          <Image style={styles.logo} source={{
-          url : this.state.picURL
-          }} />
+        <Image
+            source={{
+              uri: this.state.photo,
+            }}
+            style={{
+              width: 40,
+              height: 40,
+              borderWidth: 5, 
+              backgroundColor: "grey"
+            }}
+          />
           <Text>
             Name:
             {' '}
@@ -202,6 +213,7 @@ class HomePage extends Component {
             title="Logout"
             onPress={() => this.props.navigation.navigate('Logout')}
           />
+          
         </View>
       </View>
     );
@@ -220,7 +232,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     color: 'green',
     width: 80,
-    height: 300,
+    height: 80,
     flexDirection: 'row',
   },
 
@@ -241,6 +253,7 @@ const styles = StyleSheet.create({
     padding: 0,
     alignItems: 'flex-start',
   },
+  
 });
 
 export default HomePage;

@@ -12,7 +12,11 @@
     "lint:fix": "eslint --fix --ext .js,.jsx ."
   },
   "dependencies": {
+    "@emotion/react": "^11.8.1",
+    "@emotion/styled": "^11.8.1",
     "@material-ui/core": "^4.12.3",
+    "@mui/icons-material": "^5.5.0",
+    "@mui/material": "^5.5.0",
     "@react-native-async-storage/async-storage": "~1.15.0",
     "@react-native-community/masked-view": "^0.1.11",
     "@react-navigation/native-stack": "^6.5.0",
@@ -22,12 +26,17 @@
     "flexbox-react": "^4.4.0",
     "ionicons": "^6.0.1",
     "react": "17.0.1",
+    "react-awesome-button": "^6.5.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
-    "react-native-safe-area-context": "3.3.2",
+    "react-native-gesture-handler": "~2.1.0",
+    "react-native-reanimated": "~2.3.1",
+    "react-native-safe-area-context": "^3.3.2",
+    "react-native-screens": "~3.10.1",
     "react-native-web": "0.17.1",
     "react-navigation-stack": "^2.10.4",
     "react-navigation-tabs": "^2.11.2",
+    "rn-fetch-blob": "^0.12.0",
     "styled-components": "^5.3.3"
   },
   "devDependencies": {

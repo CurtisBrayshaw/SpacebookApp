@@ -128,7 +128,6 @@ notNull = async () => {
   console.log(this.state.email)
 
   this.setState({password:await AsyncStorage.getItem('@password')})
-  console.log(password)
 }
 
   render() {

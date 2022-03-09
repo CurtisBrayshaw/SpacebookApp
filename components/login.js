@@ -3,9 +3,10 @@
 /* eslint-disable no-throw-literal */
 import React, { Component } from 'react';
 import {
-  ScrollView, TextInput, Button,
+  ScrollView, TextInput, Button, StyleSheet, View, Text,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import StyledButton from './styles.js';
 
 class LoginPage extends Component {
   constructor(props) {
@@ -48,35 +49,68 @@ class LoginPage extends Component {
 
   render() {
     return (
-      <ScrollView>
-        <TextInput
-          placeholder="Enter your email..."
-          onChangeText={(email) => this.setState({ email })}
-          value={this.state.email}
-          style={{ padding: 5, borderWidth: 1, margin: 5 }}
-        />
-        <TextInput
-          placeholder="Enter your password..."
-          onChangeText={(password) => this.setState({ password }) & this.setPassword()}
-          value={this.state.password}
-          secureTextEntry
-          style={{ padding: 5, borderWidth: 1, margin: 5 }}
-        />
-        <Button
-          title="Login"
-          color="black"
-          onPress={() => this.login()}
-        />
-        <Button
-          title="Don't have an account?"
-          color="green"
-          onPress={() => {
-            this.props.navigation.navigate('Signup');
-          }}
-        />
-      </ScrollView>
+
+    <View style={styles.screen}> 
+      <View style={styles.topper}>
+      </View>
+      <View style={styles.box}></View>
+      <Text style={styles.topper}> Spacebook </Text>
+                    <ScrollView>
+                      <TextInput
+                        placeholder="Enter your email..."
+                        onChangeText={(email) => this.setState({ email })}
+                        value={this.state.email}
+                        style={styles.input}
+                      />
+                      <TextInput
+                        placeholder="Enter your password..."
+                        onChangeText={(password) => this.setState({ password }) & this.setPassword()}
+                        value={this.state.password}
+                        secureTextEntry
+                        style={styles.input}
+                      />
+                      <Button style = {styles.button}
+                        title="Login"
+                        onPress={() => this.login()}
+                      />
+                      <Button style = {styles.button}
+                      title = "Button"
+                      onPress={() => { this.props.navigation.navigate('Signup');}}
+                      />
+                    </ScrollView>
+        <View style={styles.box}></View>
+    </View>     
+    
     );
   }
 }
 
 export default LoginPage;
+const styles = StyleSheet.create({
+  box: {
+    flex: 2,
+    padding: 5,
+    margin: 5,
+    backgroundColor: '#323873'
+  },
+  topper: {
+    flex: 0.8,
+    backgroundColor: '#4E5283',
+    letterSpacing: 2,
+    fontSize:40 
+  },
+  title:{
+  backgroundColor: '#4E5283',
+    letterSpacing: 2,
+    fontSize:20
+  },
+  screen: {
+    flex: 1,
+    backgroundColor: '#323873'
+  },
+  input:{
+    padding: 10,
+    borderWidth: 1.5,
+    margin: 5,
+  },
+})

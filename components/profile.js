@@ -103,12 +103,12 @@ class ProfilePage extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
         this.setState({
           // isLoading: false,
           postsData: responseJson,
+          
         });
-
+        console.log(responseJson)
       })
       .catch((error) => {
         console.log(error);
@@ -154,13 +154,8 @@ class ProfilePage extends Component {
         'X-Authorization': session_token,
       },
     })
-    .then((response) => {})
       .then((response) => {
         this.getUserPosts();
-        this.setState({
-          // isLoading: false,
-          postsData: responseJson,
-        });
       })
       .catch((error) => {
         console.log(error);
@@ -202,6 +197,7 @@ class ProfilePage extends Component {
           <Text>My Posts</Text>
           <FlatList
             data={this.state.postsData}
+            keyExtractor={(item, index) => item.post_id.toString()}
             renderItem={({ item }) => (
               <View style={styles.posts}>
                 <Text>
@@ -223,13 +219,12 @@ class ProfilePage extends Component {
                 </TouchableOpacity>
 
                 {/* Delete Post Button */}
-                <TouchableOpacity onPress={() => this.deletePost(item.post_id)}>
+                <TouchableOpacity onPress={() => this.deletePost(item.post_id.toString())}>
                   <Text style={styles.editbutton}> Delete </Text>
                 </TouchableOpacity>
 
               </View>
             )}
-            keyExtractor={(item, index) => item.post_id.toString()}
           />
         </View>
 
