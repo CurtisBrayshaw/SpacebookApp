@@ -202,7 +202,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch('http://localhost:3333/api/1.0.0/friendrequests', {
+    return fetch('http://192.168.0.48:3333/api/1.0.0/friendrequests', {
       method: 'get',
       headers: {
         'X-Authorization': sessionToken,

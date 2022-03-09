@@ -12,7 +12,6 @@ class LoginPage extends Component {
     super(props);
 
     this.state = {
-      email: '',
       password: '',
     };
   }
@@ -43,6 +42,10 @@ class LoginPage extends Component {
       console.log(error);
     });
 
+  setPassword = async () =>{
+    await AsyncStorage.setItem('@password', this.state.password);
+  }
+
   render() {
     return (
       <ScrollView>
@@ -54,7 +57,7 @@ class LoginPage extends Component {
         />
         <TextInput
           placeholder="Enter your password..."
-          onChangeText={(password) => this.setState({ password })}
+          onChangeText={(password) => this.setState({ password }) & this.setPassword()}
           value={this.state.password}
           secureTextEntry
           style={{ padding: 5, borderWidth: 1, margin: 5 }}

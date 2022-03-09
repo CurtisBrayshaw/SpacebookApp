@@ -15,6 +15,10 @@ class EditPage extends Component {
       email: null,
       hasPermission: null,
       type: Camera.Constants.Type.back,
+      first_name: null,
+      last_name: null,
+      email: null,
+      password:null
     };
   }
 
@@ -24,6 +28,7 @@ class EditPage extends Component {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
+    this.notNull();
   }
 
   componentWillUnmount() {
@@ -79,26 +84,52 @@ class EditPage extends Component {
     }
   };
 
-  async updateProfile(inputFN, inputSN, inputEmail) {
+  updateProfile = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    const state = {
-      text: input,
-    };
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}`, {
-      method: 'GET',
+    
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID, {
+      method: 'PATCH',
       headers: {
-        'X-Authorization': session_token,
         'Content-Type': 'application/json',
+        'X-Authorization': session_token
       },
-      body: {
-
-      }
+      
+      body: JSON.stringify(
+        {
+        first_name: this.state.first_name,
+        last_name: this.state.last_name,
+        email: this.state.email,
+        password: this.state.password
+        }
+        )
     })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+          //isLoading: false,
+          allinfo: responseJson
+          })
+        })
       .catch((error) => {
-        console.log(error);
-      });
+          console.log(error);
+    });
   }
+notNull = async () => {
+
+  this.setState({first_name:await AsyncStorage.getItem('@first_name')})
+  console.log(this.state.first_name)
+    
+  this.setState({last_name:await AsyncStorage.getItem('@last_name')})
+  console.log(this.state.last_name)
+    
+  this.setState({email:await AsyncStorage.getItem('@email')})
+  console.log(this.state.email)
+
+  this.setState({password:await AsyncStorage.getItem('@password')})
+  console.log(password)
+}
 
   render() {
     if (this.state.hasPermission) {
@@ -144,32 +175,28 @@ class EditPage extends Component {
         <Text>Enter New First Name</Text>
         <TextInput
           placeholder="Enter First Name"
-          onChangeText={(inputFN) => this.setState({ inputFN })}
-          FN={this.state.inputFN}
+          onChangeText={(first_name) => this.setState({ first_name })}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Text>Enter New Surname</Text>
         <TextInput
           placeholder="Enter Last Name"
-          onChangeText={(inputSN) => this.setState({ inputSN })}
-          SN={this.state.inputSN}
+          onChangeText={(last_name) => this.setState({ last_name })}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Text>Enter New Email Address</Text>
         <TextInput
           placeholder="Enter New Email Address"
-          onChangeText={(inputEmail) => this.setState({ inputEmail })}
-          email={this.state.inputEmail}
+          onChangeText={(email) => this.setState({ email })}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Text>Enter New Password</Text>
         <TextInput
           placeholder="Enter New Password"
-          onChangeText={(inputPassword) => this.setState({ inputPassword })}
-          password={this.state.inputPassword}
+          onChangeText={(password) => this.setState({ password })}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
-        <Button title="Submit" color="green" onPress={() => this.updateProfile(FN, SN ,email,password)} />
+        <Button title="Submit" color="green" onPress={() => this.updateProfile()} />
         <Button title="Back" color="green" onPress={() => this.cameraToggle} />
       </View>
     );

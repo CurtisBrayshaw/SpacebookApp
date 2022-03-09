@@ -77,13 +77,12 @@ class HomePage extends Component {
         this.setState({
           // isLoading: false,
           info: responseJson,
-
         });
       })
       .then(async (responseJson) => {
-        // console.log(responseJson);
-        // await AsyncStorage.setItem('@first_name', responseJson.first_name);
-        // await AsyncStorage.setItem('@last_name', responseJson.last_name);
+        await AsyncStorage.setItem('@first_name', responseJson.info.first_name);
+        await AsyncStorage.setItem('@last_name', responseJson.last_name);
+        await AsyncStorage.setItem('@email', responseJson.info.email);
       })
       .catch((error) => {
         console.log(error);
