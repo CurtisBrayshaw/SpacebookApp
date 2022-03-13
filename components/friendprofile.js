@@ -66,7 +66,13 @@ class FriendProfilePage extends Component {
         console.log(error);
       });
   };
-
+  
+  async postDatatoAsync(item){
+    
+    item = JSON.stringify(item)
+    await AsyncStorage.setItem('@userPost', item);
+    this.props.navigation.navigate('Single Post')
+  }
   getUserPosts = async () => {
     console.log('Getting posts...');
     const friendUID = await AsyncStorage.getItem('@friendUID');
@@ -179,6 +185,11 @@ class FriendProfilePage extends Component {
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => this.unlikePost(item.author.user_id, item.post_id)}>
                   <Text style={styles.editbutton}> Unlike </Text>
+                </TouchableOpacity>
+                {/* View Post Button */}
+                <TouchableOpacity onPress={() => {this.postDatatoAsync(item)}}>
+                   
+                  <Text style={styles.button}> View </Text>
                 </TouchableOpacity>
                 
               </View>

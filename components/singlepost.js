@@ -13,10 +13,10 @@ class ViewPostPage extends Component {
 
     this.state = {
       info: {},
-      postsData: [],
-      UID: null,
-      postID: null,
-      postinfo: {}
+      postData: {},
+      postinfo: {},
+      singlePost: {},
+      first_name:""
     };
   }
 
@@ -31,6 +31,7 @@ class ViewPostPage extends Component {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
+    this.postsDataFromAsync();
     this.getSinglePost();
   }
 
@@ -44,50 +45,46 @@ class ViewPostPage extends Component {
     }
   };
 
-  getSinglePost = async () => {
-    console.log('Getting posts...');
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    const postID = await AsyncStorage.getItem('@postID');
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/post/${postID}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': session_token,
-      },
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({
-          // isLoading: false,
-          postinfo: responseJson,
-          
-        });
-        console.log(this.state.postsData)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
 
-  async deletePost(postID) {
-    console.log('Post Deleted');
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post/${postID}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': session_token,
-      },
-    })
-      .then((response) => {
-        this.getUserPosts();
-      })
-      .catch((error) => {
-        console.log(error);
+async postsDataFromAsync(){
+  const postData = await AsyncStorage.getItem('@userPost');
+  this.setState({
+    postData:JSON.parse(postData) 
+  })
+};
+
+getSinglePost = async () => {
+  console.log('Getting posts...');
+  const session_token = await AsyncStorage.getItem('@session_token');
+  const authorID = this.state.postData.author.user_id
+  const postID = this.state.postData.post_id
+  return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + authorID + '/post/' + postID, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Authorization': session_token,
+    },
+  })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      this.setState({
+        // isLoading: false,
+        info: responseJson,
       });
-  }
+      this.setState({
+        // isLoading: false,
+        email: this.state.info.author.email,
+        first_name: this.state.info.author.first_name,
+        last_name: this.state.info.author.last_name,
+        numLikes: this.state.info.numLikes,
+        text: this.state.info.text,
+        timestamp: this.state.info.timestamp
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
   updatePost = async (postID) => {
     console.log('Getting profile...');
@@ -118,10 +115,13 @@ class ViewPostPage extends Component {
   render() {
     return (
         <View style={styles.page}>
-          <Text>{this.state.postinfo.first_name}</Text>
-          <Text>{this.state.postinfo.text}</Text>
-          <Text></Text>
-          <Text></Text>
+            <View style={styles.posts}>
+                <Text>{this.state.first_name} {this.state.last_name} {this.state.timestamp}</Text>
+                <Text>{this.state.text}</Text>
+                <Text>Likes:{this.state.numLikes}</Text>
+            </View>
+
+
                 <TouchableOpacity onPress={() => this.likePost(item.author.user_id, item.post_id)}>
                   <Text style={styles.editbutton}> Like </Text>
                 </TouchableOpacity>

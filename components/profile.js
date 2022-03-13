@@ -115,9 +115,11 @@ class ProfilePage extends Component {
       });
   };
 
-  async postIDtoAsync(postID){
-    await AsyncStorage.setItem('@postID', postID);
-    console.log(await AsyncStorage.getItem('@postID'))
+  async postDatatoAsync(item){
+    
+    item = JSON.stringify(item)
+    await AsyncStorage.setItem('@userPost', item);
+    this.props.navigation.navigate('Single Post')
   }
 
 
@@ -214,7 +216,8 @@ class ProfilePage extends Component {
                 <Text>Likes:{item.numLikes}</Text>
 
                 {/* View Post Button */}
-                <TouchableOpacity onPress={() => { this.props.navigation.navigate('Single Post'); this.postIDtoAsync(item.post_id.toString())}}>
+                <TouchableOpacity onPress={() => {this.postDatatoAsync(item)}}>
+                   
                   <Text style={styles.button}> View </Text>
                 </TouchableOpacity>
 

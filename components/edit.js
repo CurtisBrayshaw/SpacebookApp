@@ -135,7 +135,7 @@ notNull = async () => {
     if (this.state.hasPermission) {
       return (
 <View style={styles.page}>
-          <Camera style={styles.button} type={this.state.type} ref={(ref) => this.camera = ref}>
+          <Camera style={styles.page} type={this.state.type} ref={(ref) => this.camera = ref}>
             <View>
               <TouchableOpacity
                 onPress={() => {
@@ -156,7 +156,6 @@ notNull = async () => {
               >
                 <Text style={styles.text}> Capture </Text>
               </TouchableOpacity>
-
             </View>
           </Camera>
 </View>
@@ -198,7 +197,6 @@ notNull = async () => {
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
         <Button title="Submit" onPress={() => this.updateProfile() & this.props.navigation.navigate('Home')} />
-        <Button title="Back"  onPress={() => this.cameraToggle} />
       </View>
     );
   }
