@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, ScrollView, TextInput } from 'react-native';
-
+import styles from "./styles"
 class SignupPage extends Component {
   constructor(props) {
     super(props);

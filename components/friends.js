@@ -4,7 +4,7 @@ import {
   ScrollView, TextInput, StyleSheet, Button, View, FlatList, Text, displayAlert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import styles from "./styles"
 class FriendPage extends Component {
   constructor(props) {
     super(props);
@@ -236,7 +236,7 @@ class FriendPage extends Component {
 
   render() {
     return (
-      <View>
+      <View style={styles.page}>
         {/* Search Bar */}
         <TextInput
           placeholder="Enter name"
@@ -314,18 +314,6 @@ class FriendPage extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-  box: {
 
-    backgroundColor: ('lightblue'),
-    padding: 10,
-  },
-
-  box1: {
-
-    backgroundColor: ('pink'),
-    padding: 10,
-  },
-});
 
 export default FriendPage;

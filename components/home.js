@@ -6,7 +6,7 @@ import {
   StyleSheet, View, Text, Button, Image, FlatList
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import styles from "./styles"
 
 class HomePage extends Component {
   constructor(props) {
@@ -66,7 +66,6 @@ class HomePage extends Component {
 };
 
   getCurrentUser = async () => {
-    console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}`, {
@@ -154,6 +153,7 @@ class HomePage extends Component {
           <Text>{this.state.info.first_name} {this.state.info.last_name} </Text>
           
           <Text>{this.state.info.friend_count} Friend(s)</Text>
+          
 
         </View>
 
@@ -178,40 +178,5 @@ class HomePage extends Component {
     );
   }
 }
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    padding: 5,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    backgroundColor: ('lightblue'),
-  },
-  box: {
-    backgroundColor: ('lightblue'),
-    padding: 3,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: window.innerWidth,
-  },
-  button: {
-    flex:1,
-    color: 'green',
-    width: 100,
-    height: 35,
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-
-  },
-  logo: {
-    width: 50,
-    height: 50,
-  },
-  posts: {
-    backgroundColor: ('lightblue'),
-    margin: 5,
-    padding: 0,
-    alignItems: 'flex-start',
-  }
-  });
 
 export default HomePage;

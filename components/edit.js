@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera } from 'expo-camera';
+import styles from "./styles"
 
 class EditPage extends Component {
   constructor(props) {
@@ -133,7 +134,7 @@ notNull = async () => {
   render() {
     if (this.state.hasPermission) {
       return (
-        <View style={styles.button}>
+<View style={styles.page}>
           <Camera style={styles.button} type={this.state.type} ref={(ref) => this.camera = ref}>
             <View>
               <TouchableOpacity
@@ -158,18 +159,19 @@ notNull = async () => {
 
             </View>
           </Camera>
-        </View>
+</View>
       );
     }
     return (
-      <View>
-        <View style={styles.box}>
-          <Button title="Take Picture" color="green" onPress={() => this.cameraToggle()} />
+      <View style={styles.page}>
+        <View>
+          <Button title="Take Picture" onPress={() => this.cameraToggle()} />
           <Text>
             {this.state.info.first_name}
             {' '}
             {this.state.info.last_name}
           </Text>
+          
         </View>
         <Text>Enter New First Name</Text>
         <TextInput
@@ -195,38 +197,11 @@ notNull = async () => {
           onChangeText={(password) => this.setState({ password })}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
-        <Button title="Submit" color="green" onPress={() => this.updateProfile() & this.props.navigation.navigate('Profile')} />
-        <Button title="Back" color="green" onPress={() => this.cameraToggle} />
+        <Button title="Submit" onPress={() => this.updateProfile() & this.props.navigation.navigate('Home')} />
+        <Button title="Back"  onPress={() => this.cameraToggle} />
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  box: {
-
-    backgroundColor: ('lightblue'),
-    padding: 10,
-  },
-  box1: {
-    backgroundColor: ('pink'),
-    padding: 10,
-  },
-  button: {
-    backgroundColor: ('lightblue'),
-    padding: 10,
-  },
-  editbutton: {
-    backgroundColor: ('white'),
-    padding: 10,
-    alignItems: 'flex-end',
-  },
-  posts: {
-    backgroundColor: ('lightblue'),
-    margin: 5,
-    padding: 0,
-    alignItems: 'flex-start',
-  },
-});
 
 export default EditPage;

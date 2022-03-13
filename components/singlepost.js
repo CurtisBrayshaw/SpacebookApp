@@ -5,7 +5,7 @@ import {
   ScrollView, TextInput, Image, Button, View, FlatList, Text, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import styles from "./styles"
 
 class ViewPostPage extends Component {
   constructor(props) {
@@ -117,8 +117,8 @@ class ViewPostPage extends Component {
 
   render() {
     return (
-        <View>
-          <Text>{this.state.postinfo.author.first_name}</Text>
+        <View style={styles.page}>
+          <Text>{this.state.postinfo.first_name}</Text>
           <Text>{this.state.postinfo.text}</Text>
           <Text></Text>
           <Text></Text>
@@ -134,22 +134,3 @@ class ViewPostPage extends Component {
 }
 
 export default ViewPostPage;
-
-const styles = StyleSheet.create({
-
-  button: {
-    backgroundColor: ('lightblue'),
-    padding: 10,
-  },
-  editbutton: {
-    backgroundColor: ('white'),
-    padding: 10,
-    alignItems: 'flex-end',
-  },
-  posts: {
-    backgroundColor: ('lightblue'),
-    margin: 5,
-    padding: 0,
-    alignItems: 'flex-start',
-  },
-});

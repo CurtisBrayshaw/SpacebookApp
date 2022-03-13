@@ -6,7 +6,7 @@ import {
   ScrollView, TextInput, Button, StyleSheet, View, Text,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import styles from "./styles"
 
 class LoginPage extends Component {
   constructor(props) {
@@ -50,11 +50,12 @@ class LoginPage extends Component {
   render() {
     return (
 
-    <View style={styles.screen}> 
-      <View style={styles.topper}>
-      </View>
+    <View style={styles.page}> 
+      <View style={styles.topper}></View>
       <View style={styles.box}></View>
-      <Text style={styles.topper}> Spacebook </Text>
+      <View style={styles.title}>
+      <Text style={styles.title}>      Spacebook </Text>
+
                     <ScrollView>
                       <TextInput
                         placeholder="Enter your email..."
@@ -69,15 +70,18 @@ class LoginPage extends Component {
                         secureTextEntry
                         style={styles.input}
                       />
-                      <Button style = {styles.button}
+                  
+                      <Button
                         title="Login"
                         onPress={() => this.login()}
                       />
-                      <Button style = {styles.button}
-                      title = "Button"
+                      <Button
+                      title = "Don't have an account?"
+                      backgroundColor
                       onPress={() => { this.props.navigation.navigate('Signup');}}
                       />
-                    </ScrollView>
+                  </ScrollView>
+                  </View>
         <View style={styles.box}></View>
     </View>     
     
@@ -86,31 +90,4 @@ class LoginPage extends Component {
 }
 
 export default LoginPage;
-const styles = StyleSheet.create({
-  box: {
-    flex: 2,
-    padding: 5,
-    margin: 5,
-    backgroundColor: '#323873'
-  },
-  topper: {
-    flex: 0.8,
-    backgroundColor: '#4E5283',
-    letterSpacing: 2,
-    fontSize:40 
-  },
-  title:{
-  backgroundColor: '#4E5283',
-    letterSpacing: 2,
-    fontSize:20
-  },
-  screen: {
-    flex: 1,
-    backgroundColor: '#323873'
-  },
-  input:{
-    padding: 10,
-    borderWidth: 1.5,
-    margin: 5,
-  },
-})
+

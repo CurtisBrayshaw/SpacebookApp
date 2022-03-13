@@ -5,7 +5,7 @@ import {
   ScrollView, TextInput, Image, Button, View, FlatList, Text, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import styles from "./styles"
 
 class FriendProfilePage extends Component {
   constructor(props) {
@@ -140,8 +140,8 @@ class FriendProfilePage extends Component {
   }
   render() {
     return (
-      <View>
-        <Image style={styles.logo} source={{ uri: this.state.photo }} />
+      <View style={styles.page}>
+        <Image source={{ uri: this.state.photo }} />
         <Text>
           Name: 
           {this.state.info.first_name}
@@ -193,24 +193,3 @@ class FriendProfilePage extends Component {
 }
 
 export default FriendProfilePage;
-
-const styles = StyleSheet.create({
-
-  button: {
-    flex: 1,
-    backgroundColor: ('lightblue'),
-    padding: 10,
-  },
-  editbutton: {
-    backgroundColor: ('white'),
-    padding: 10,
-    alignItems: 'flex-end',
-  },
-  posts: {
-    backgroundColor: ('lightblue'),
-    margin: 5,
-    padding: 0,
-    alignItems: 'flex-start',
-  },
-  
-});

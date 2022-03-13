@@ -2,10 +2,11 @@
 
 import React, {Component} from 'react';
 import {
-  ScrollView, TextInput, Image, Button, View, FlatList, Text, StyleSheet, TouchableOpacity,
+  ScrollView, TextInput, Image, Button, View, FlatList, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import styles, {Text} from "./styles"
+import StyledButton from "../widgets/StyledButton"
 class ProfilePage extends Component {
   constructor(props) {
     super(props);
@@ -171,30 +172,32 @@ class ProfilePage extends Component {
   render() {
     return (
       <View style = {styles.page}>
-
         <View style={styles.user}>
         <Image style={{width: 60, height: 60,borderWidth: 5, backgroundColor: "grey",}}/>
         <Image style={styles.logo} source={{ uri: this.state.photo }} />
-        <Text>{this.state.info.first_name}</Text>
-        <Text>{this.state.info.last_name}</Text>
-        <Text>{this.state.info.email}</Text>
-        </View>
+        <Text> 
+        {this.state.info.first_name}</Text>
+        <Text>
+        {this.state.info.last_name}</Text>
+        <Text>
+        {this.state.info.email}</Text>
         <TouchableOpacity onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
-          <Text style={styles.editbutton}> Edit Profile </Text>
+        <Text style={styles.editbutton}> Edit Profile </Text>
         </TouchableOpacity>
-          
+        </View>
+        
         {/* Make Post */}
         <View>
           <TextInput
+          style= {styles.button}
            type = "textarea"
             placeholder="Write a post"
             multiline = {true}
             onChangeText={(input) => this.setState({ input })}
             value={this.state.input}
-            style={styles.editbutton}
           />
           <TouchableOpacity onPress={() => this.submitPost(this.state.input)}>
-          <Text style={styles.editbutton}> Submit </Text>
+          <Text style={styles.button}> Submit </Text>
           </TouchableOpacity>
         </View>
 
@@ -210,14 +213,14 @@ class ProfilePage extends Component {
                 <Text>{item.text}</Text>
                 <Text>Likes:{item.numLikes}</Text>
 
-                {/* Edit Post Button */}
+                {/* View Post Button */}
                 <TouchableOpacity onPress={() => { this.props.navigation.navigate('Single Post'); this.postIDtoAsync(item.post_id.toString())}}>
-                  <Text style={styles.editbutton}> View </Text>
+                  <Text style={styles.button}> View </Text>
                 </TouchableOpacity>
 
                 {/* Delete Post Button */}
                 <TouchableOpacity onPress={() => this.deletePost(item.post_id.toString())}>
-                  <Text style={styles.editbutton}> Delete </Text>
+                  <Text style={styles.button}> Delete </Text>
                 </TouchableOpacity>
 
               </View>
@@ -228,35 +231,6 @@ class ProfilePage extends Component {
     );
   }
 }
-
 export default ProfilePage;
 
-const styles = StyleSheet.create({
-  
-  page: {
-    backgroundColor: ('#0E1428'),
-    flex:1
-  },
-  button: {
-    flex: 1,
-    backgroundColor: ('lightblue'),
-    padding: 10,
-  },
-  editbutton: {
-    backgroundColor: ('#F0A202'),
-    padding: 10,
-    alignItems: 'flex-end',
-  },
-  posts: {
-    backgroundColor: ('#FDFDFF'),
-    margin: 5,
-    padding: 0,
-    alignItems: 'flex-start',
-  },
-  user: {
-    backgroundColor: ('#D95D39'),
-    padding: 0,
-    alignItems: 'flex-start',
-  },
-  
-});
+
