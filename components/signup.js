@@ -10,13 +10,19 @@ class SignupPage extends Component {
       last_name: '',
       email: '',
       password: '',
+      errortext: ""
     };
   }
 
-  signup = () =>
-  // Validation here...
+  signup = () =>{
+    if(this.state.password.length < 8){
+      this.setState({
+        errortext: "Password not long enough",
+      });
 
-    fetch('http://192.168.0.48:3333/api/1.0.0/user', {
+    }
+
+    fetch('http://10.0.2.2:3333/api/1.0.0/user', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
@@ -39,6 +45,7 @@ class SignupPage extends Component {
       .catch((error) => {
         console.log(error);
       });
+    }
 
   render() {
     return (

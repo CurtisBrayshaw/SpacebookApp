@@ -6,7 +6,7 @@ import {
   StyleSheet, View, Text, Button, Image, FlatList
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { backgroundColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
+
 
 class HomePage extends Component {
   constructor(props) {
@@ -30,8 +30,9 @@ class HomePage extends Component {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
-    this.getProfilePhoto();
+    
     this.getCurrentUser();
+    this.getProfilePhoto();
     this.getFriends();
   }
 
@@ -42,7 +43,7 @@ class HomePage extends Component {
   getProfilePhoto = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://192.168.0.48:3333/api/1.0.0/user/' + UID + '/photo', {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + '/photo', {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
@@ -52,7 +53,7 @@ class HomePage extends Component {
       return res.blob()
     })
     .then((resBlob) => {
-      let data = URL.createObjectURL(base64Str);
+      let data = URL.createObjectURL(resBlob);
       
       this.setState({
         photo: data,
@@ -68,7 +69,7 @@ class HomePage extends Component {
     console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}`, {
+    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -84,9 +85,9 @@ class HomePage extends Component {
         });
       })
       .then(async (responseJson) => {
-        await AsyncStorage.setItem('@first_name', responseJson.info.first_name);
-        await AsyncStorage.setItem('@last_name', responseJson.info.last_name);
-        await AsyncStorage.setItem('@email', responseJson.info.email);
+        await AsyncStorage.setItem('@first_name', this.state.info.first_name);
+        await AsyncStorage.setItem('@last_name', this.state.info.last_name);
+        await AsyncStorage.setItem('@email', this.state.info.email);
       })
       .catch((error) => {
         console.log(error);
@@ -96,7 +97,7 @@ class HomePage extends Component {
   getFriends = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://192.168.0.48:3333/api/1.0.0/user/' + UID + '/friends', {
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + '/friends', {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
@@ -118,7 +119,7 @@ class HomePage extends Component {
   getPosts = async (friendsData) => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://192.168.0.48:3333/api/1.0.0/user/' + this.state.UID +  '/post' ,{
+    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + this.state.UID +  '/post' ,{
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -141,64 +142,20 @@ class HomePage extends Component {
 
   render() {
     return (
-      <View style={styles.page}>
+<View style={styles.page}>
 
         <View style={styles.box}>
         <Image
             source={{
               uri: this.state.photo,
             }}
-            style={{
-              width: 40,
-              height: 40,
-              borderWidth: 5, 
-              backgroundColor: "grey"
-            }}
-          />
-          <Text>
-            Name:
-            {' '}
-            {this.state.info.first_name}
-            {' '}
-            {this.state.info.last_name}
-            {' '}
-          </Text>
-          <Text>
-            Friends:
-            {this.state.info.friend_count}
-            {' '}
-          </Text>
-        </View>
+            style={{width: 100, height: 100, backgroundColor: "grey",}}
+        />
+          <Text>{this.state.info.first_name} {this.state.info.last_name} </Text>
+          
+          <Text>{this.state.info.friend_count} Friend(s)</Text>
 
-        {/* Posts Feed */}
-          {/* <Text>My Posts</Text>
-          <FlatList
-            data={this.state.postsData}
-            renderItem={({ item }) => (
-              <View>
-                <Text>
-                  {item.author.first_name}
-                  {' '}
-                  {item.author.last_name}
-                  {' '}
-                  {item.timestamp}
-                </Text>
-                <Text>{item.text}</Text>
-                <Text>
-                  Likes:
-                  {item.numLikes}
-                </Text> */}
-                {/* <TouchableOpacity onPress={() => this.editPost(item.post_id)}>
-                  <Text style={styles.editbutton}> Edit </Text>
-                </TouchableOpacity> */}
-                {/* <TouchableOpacity onPress={() => this.deletePost(item.post_id)}>
-                  <Text style={styles.editbutton}> Delete </Text>
-                </TouchableOpacity> */}
-              {/* </View>
-            )}
-            keyExtractor={(item, index) => item.post_id.toString()}
-          /> */}
-        
+        </View>
 
         <View style={styles.button}>
           <Button
@@ -213,47 +170,48 @@ class HomePage extends Component {
             title="Logout"
             onPress={() => this.props.navigation.navigate('Logout')}
           />
-          
         </View>
-      </View>
+        
+</View>
+
+
     );
   }
 }
 const styles = StyleSheet.create({
-  box: {
-    backgroundColor: ('white'),
-    padding: 10,
-
-  },
-  button: {
-    flexWrap: 'wrap',
-    alignContent: 'stretch',
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
-    color: 'green',
-    width: 80,
-    height: 80,
-    flexDirection: 'row',
-  },
-
-  logo: {
-    width: 50,
-    height: 50,
-  },
   page: {
     flex: 1,
     padding: 5,
-    width: 500,
-    height: 500,
+    width: window.innerWidth,
+    height: window.innerHeight,
     backgroundColor: ('lightblue'),
+  },
+  box: {
+    backgroundColor: ('lightblue'),
+    padding: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: window.innerWidth,
+  },
+  button: {
+    flex:1,
+    color: 'green',
+    width: 100,
+    height: 35,
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+
+  },
+  logo: {
+    width: 50,
+    height: 50,
   },
   posts: {
     backgroundColor: ('lightblue'),
     margin: 5,
     padding: 0,
     alignItems: 'flex-start',
-  },
-  
-});
+  }
+  });
 
 export default HomePage;

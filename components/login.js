@@ -6,7 +6,7 @@ import {
   ScrollView, TextInput, Button, StyleSheet, View, Text,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import StyledButton from './styles.js';
+
 
 class LoginPage extends Component {
   constructor(props) {
@@ -17,7 +17,7 @@ class LoginPage extends Component {
     };
   }
 
-  login = async () => fetch('http://192.168.0.48:3333/api/1.0.0/login', {
+  login = async () => fetch('http://10.0.2.2:3333/api/1.0.0/login', {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',

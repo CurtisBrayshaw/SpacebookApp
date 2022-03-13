@@ -1,20 +1,19 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   ScrollView, TextInput, Image, Button, View, FlatList, Text, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 class ProfilePage extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       info: {},
       postsData: [],
       UID: null,
+      picURL: null
     };
   }
 
@@ -50,7 +49,7 @@ class ProfilePage extends Component {
     const res = await fetch(data.base64);
     const blob = await res.blob();
 
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${id}/photo`, {
+    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${id}/photo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'image/png',
@@ -70,7 +69,7 @@ class ProfilePage extends Component {
     console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}`, {
+    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +93,7 @@ class ProfilePage extends Component {
     console.log('Getting posts...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/post`, {
+    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -115,6 +114,13 @@ class ProfilePage extends Component {
       });
   };
 
+  async postIDtoAsync(postID){
+    await AsyncStorage.setItem('@postID', postID);
+    console.log(await AsyncStorage.getItem('@postID'))
+  }
+
+
+
   async submitPost(input) {
     const state = {
       text: input,
@@ -122,7 +128,7 @@ class ProfilePage extends Component {
     console.log('Post Submitted');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/post`, {
+    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -147,7 +153,7 @@ class ProfilePage extends Component {
     console.log('Post Deleted');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://192.168.0.48:3333/api/1.0.0/user/${UID}/post/${postID}`, {
+    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post/${postID}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -164,32 +170,32 @@ class ProfilePage extends Component {
 
   render() {
     return (
-      <View>
-        <Image style={styles.logo} source={{ uri: this.state.photo }} />
-        <Text>
-          Name:
-          {this.state.info.first_name}
-          {' '}
-          {this.state.info.last_name}
-        </Text>
-        <Text>
-          Email Address:
-          {this.state.info.email}
-        </Text>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
-          <Text style={styles.editbutton}> Edit </Text>
-        </TouchableOpacity>
+      <View style = {styles.page}>
 
+        <View style={styles.user}>
+        <Image style={{width: 60, height: 60,borderWidth: 5, backgroundColor: "grey",}}/>
+        <Image style={styles.logo} source={{ uri: this.state.photo }} />
+        <Text>{this.state.info.first_name}</Text>
+        <Text>{this.state.info.last_name}</Text>
+        <Text>{this.state.info.email}</Text>
+        </View>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
+          <Text style={styles.editbutton}> Edit Profile </Text>
+        </TouchableOpacity>
+          
         {/* Make Post */}
         <View>
           <TextInput
+           type = "textarea"
             placeholder="Write a post"
+            multiline = {true}
             onChangeText={(input) => this.setState({ input })}
             value={this.state.input}
-            style={{ borderWidth: 1, padding: 5 }}
-            borderColor="black"
+            style={styles.editbutton}
           />
-          <Button title="Make Post" color="green" onPress={() => this.submitPost(this.state.input)} />
+          <TouchableOpacity onPress={() => this.submitPost(this.state.input)}>
+          <Text style={styles.editbutton}> Submit </Text>
+          </TouchableOpacity>
         </View>
 
         {/* My Posts */}
@@ -200,22 +206,13 @@ class ProfilePage extends Component {
             keyExtractor={(item, index) => item.post_id.toString()}
             renderItem={({ item }) => (
               <View style={styles.posts}>
-                <Text>
-                  {item.author.first_name}
-                  {' '}
-                  {item.author.last_name}
-                  {' '}
-                  {item.timestamp}
-                </Text>
+                <Text>{item.author.first_name} {item.author.last_name} {item.timestamp}</Text>
                 <Text>{item.text}</Text>
-                <Text>
-                  Likes:
-                  {item.numLikes}
-                </Text>
+                <Text>Likes:{item.numLikes}</Text>
 
                 {/* Edit Post Button */}
-                <TouchableOpacity onPress={() => this.editPost(item.post_id)}>
-                  <Text style={styles.editbutton}> Edit </Text>
+                <TouchableOpacity onPress={() => { this.props.navigation.navigate('Single Post'); this.postIDtoAsync(item.post_id.toString())}}>
+                  <Text style={styles.editbutton}> View </Text>
                 </TouchableOpacity>
 
                 {/* Delete Post Button */}
@@ -227,7 +224,6 @@ class ProfilePage extends Component {
             )}
           />
         </View>
-
       </View>
     );
   }
@@ -236,21 +232,31 @@ class ProfilePage extends Component {
 export default ProfilePage;
 
 const styles = StyleSheet.create({
-
+  
+  page: {
+    backgroundColor: ('#0E1428'),
+    flex:1
+  },
   button: {
     flex: 1,
     backgroundColor: ('lightblue'),
     padding: 10,
   },
   editbutton: {
-    backgroundColor: ('white'),
+    backgroundColor: ('#F0A202'),
     padding: 10,
     alignItems: 'flex-end',
   },
   posts: {
-    backgroundColor: ('lightblue'),
+    backgroundColor: ('#FDFDFF'),
     margin: 5,
     padding: 0,
     alignItems: 'flex-start',
   },
+  user: {
+    backgroundColor: ('#D95D39'),
+    padding: 0,
+    alignItems: 'flex-start',
+  },
+  
 });

@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Text, FlatList, Image, Button, TextInput, TouchableOpacity,
+  StyleSheet, View, Text, Button, TextInput, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera } from 'expo-camera';
@@ -56,7 +56,7 @@ class EditPage extends Component {
     let res = await fetch(data.base64);
     let blob = await res.blob();
 
-    return fetch("http://192.168.0.48:3333/api/1.0.0/user/" + UID + "/photo", {
+    return fetch("http://10.0.2.2:3333/api/1.0.0/user/" + UID + "/photo", {
         method: "POST",
         headers: {
             "Content-Type": "image/png",
@@ -106,18 +106,18 @@ class EditPage extends Component {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
         this.setState({
           //isLoading: false,
           allinfo: responseJson
           })
+        
         })
       .catch((error) => {
           console.log(error);
     });
   }
-notNull = async () => {
 
+notNull = async () => {
   this.setState({first_name:await AsyncStorage.getItem('@first_name')})
   console.log(this.state.first_name)
     
@@ -195,7 +195,7 @@ notNull = async () => {
           onChangeText={(password) => this.setState({ password })}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
         />
-        <Button title="Submit" color="green" onPress={() => this.updateProfile()} />
+        <Button title="Submit" color="green" onPress={() => this.updateProfile() & this.props.navigation.navigate('Profile')} />
         <Button title="Back" color="green" onPress={() => this.cameraToggle} />
       </View>
     );
@@ -208,14 +208,11 @@ const styles = StyleSheet.create({
     backgroundColor: ('lightblue'),
     padding: 10,
   },
-
   box1: {
-
     backgroundColor: ('pink'),
     padding: 10,
   },
   button: {
-    flex: 1,
     backgroundColor: ('lightblue'),
     padding: 10,
   },
