@@ -6,7 +6,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // eslint-disable-next-line no-unused-vars
-import { Camera } from 'expo-camera';
 import HomePage from './components/home';
 import LoginPage from './components/login';
 import SignupPage from './components/signup';
@@ -16,7 +15,7 @@ import ProfilePage from './components/profile';
 import EditPage from './components/edit';
 import FriendProfilePage from './components/friendprofile';
 import ViewPostPage from './components/singlepost';
-
+import EditPostPage from './components/editpost';
 const Stack = createNativeStackNavigator();
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -35,6 +34,7 @@ class App extends Component {
           <Stack.Screen name="Edit Profile" component={EditPage} />
           <Stack.Screen name="Friend Profile" component={FriendProfilePage} />
           <Stack.Screen name="Single Post" component={ViewPostPage} />
+          <Stack.Screen name="Edit Post" component={EditPostPage} />
         </Stack.Navigator>
 
       </NavigationContainer>

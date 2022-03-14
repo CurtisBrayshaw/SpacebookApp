@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-filename-extension */
 
 import React, { Component } from 'react';
 import {
@@ -7,7 +6,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, {Text} from "./styles"
 
-class ViewPostPage extends Component {
+class EditPostPage extends Component {
   constructor(props) {
     super(props);
 
@@ -52,7 +51,7 @@ async postsDataFromAsync(){
   })
 };
 
-  getSinglePost = async () => {
+getSinglePost = async () => {
   console.log('Getting posts...');
   const session_token = await AsyncStorage.getItem('@session_token');
   const authorID = this.state.postData.author.user_id
@@ -85,6 +84,31 @@ async postsDataFromAsync(){
     });
 };
 
+updatePost = async (postID, input) => {
+    console.log('Getting profile...');
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post/` + postID, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': session_token,
+      },
+      body: JSON.stringify(
+        {
+        text: input
+        }
+        )
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   render() {
     return (
 <View style={styles.page}>
@@ -99,4 +123,4 @@ async postsDataFromAsync(){
             )}
 }
 
-export default ViewPostPage;
+export default EditPostPage;

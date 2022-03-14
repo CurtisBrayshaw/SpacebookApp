@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { Component } from 'react';
 import {
-  ScrollView, TextInput, StyleSheet, Button, View, FlatList, Text, displayAlert,
+  ScrollView, TextInput, StyleSheet,TouchableOpacity, Button, View, FlatList, displayAlert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from "./styles"
+import styles, {Text} from "./styles"
 class FriendPage extends Component {
   constructor(props) {
     super(props);
@@ -42,7 +42,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/friends`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/friends`, {
       headers: {
         'X-Authorization': sessionToken,
       },
@@ -77,7 +77,7 @@ class FriendPage extends Component {
     const search = this.state.input;
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/search?q=${search}`, {
+    return fetch(`http://localhost:3333/api/1.0.0/search?q=${search}`, {
       method: 'get',
       headers: {
         'X-Authorization': sessionToken,
@@ -109,7 +109,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${id}/friends`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${id}/friends`, {
       method: 'POST',
       headers: {
         'X-Authorization': sessionToken,
@@ -140,7 +140,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/friendrequests/${id}`, {
+    return fetch(`http://localhost:3333/api/1.0.0/friendrequests/${id}`, {
       method: 'post',
       headers: {
         'X-Authorization': sessionToken,
@@ -171,7 +171,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/friendrequests/${id}`, {
+    return fetch(`http://localhost:3333/api/1.0.0/friendrequests/${id}`, {
       method: 'delete',
       headers: {
         'X-Authorization': sessionToken,
@@ -202,7 +202,7 @@ class FriendPage extends Component {
     const sessionToken = await AsyncStorage.getItem('@session_token');
     // Validation here...
 
-    return fetch('http://10.0.2.2:3333/api/1.0.0/friendrequests', {
+    return fetch('http://localhost:3333/api/1.0.0/friendrequests', {
       method: 'GET',
       headers: {
         'X-Authorization': sessionToken,
@@ -237,6 +237,23 @@ class FriendPage extends Component {
   render() {
     return (
       <View style={styles.page}>
+
+        {/* Navbar */}
+        <View style={styles.navbar}>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+        <Text> Home </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+        <Text> Friends </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+        <Text> Profile </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+        <Text> Logout </Text>
+        </TouchableOpacity>
+        </View>
+
         {/* Search Bar */}
         <TextInput
           placeholder="Enter name"
@@ -255,10 +272,7 @@ class FriendPage extends Component {
           />
         </View>
 
-        {/* Friends Text */}
-        <View>
-          <Text> Friends </Text>
-        </View>
+        
 
         {/* Show Potential Friends */}
         <FlatList
@@ -275,7 +289,10 @@ class FriendPage extends Component {
           )}
           keyExtractor={(item, index) => item.user_id.toString()}
         />
-
+        {/* Friends Text */}
+        <View>
+        <Text style={styles.title}> Friends </Text>
+        </View>
         {/* Friends */}
         <FlatList
           data={this.state.data}
@@ -293,7 +310,7 @@ class FriendPage extends Component {
         />
         
         {/* Friend Requests */}
-        <Text>Friend Requests</Text>
+        <Text style={styles.title}>Friend Requests</Text>
         <FlatList
           data={this.state.requestList}
           renderItem={({ item }) => (

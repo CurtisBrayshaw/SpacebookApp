@@ -47,7 +47,7 @@ class FriendProfilePage extends Component {
     console.log('Getting profile...');
     const friendUID = await AsyncStorage.getItem('@friendUID');
     const session_token = await AsyncStorage.getItem('@session_token');
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + friendUID, {
+    return fetch('http://localhost:3333/api/1.0.0/user/' + friendUID, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ class FriendProfilePage extends Component {
     const friendUID = await AsyncStorage.getItem('@friendUID');
     const session_token = await AsyncStorage.getItem('@session_token');
     console.log(friendUID)
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/'+ friendUID +'/post', {
+    return fetch('http://localhost:3333/api/1.0.0/user/'+ friendUID +'/post', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ class FriendProfilePage extends Component {
     console.log('Post Liked');
     const session_token = await AsyncStorage.getItem('@session_token');
     console.log(friendID)
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/` + friendID + `/post/${PID}/like`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/` + friendID + `/post/${PID}/like`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ class FriendProfilePage extends Component {
     console.log('Post Liked');
     const session_token = await AsyncStorage.getItem('@session_token');
     console.log(friendID)
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/` + friendID + `/post/${PID}/like`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/` + friendID + `/post/${PID}/like`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -188,7 +188,6 @@ class FriendProfilePage extends Component {
                 </TouchableOpacity>
                 {/* View Post Button */}
                 <TouchableOpacity onPress={() => {this.postDatatoAsync(item)}}>
-                   
                   <Text style={styles.button}> View </Text>
                 </TouchableOpacity>
                 

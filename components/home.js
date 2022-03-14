@@ -3,10 +3,10 @@
 /* eslint-disable linebreak-style */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Text, Button, Image, FlatList
+  StyleSheet, View, Button, Image,TouchableOpacity, FlatList
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from "./styles"
+import styles, {Text} from "./styles"
 
 class HomePage extends Component {
   constructor(props) {
@@ -43,7 +43,7 @@ class HomePage extends Component {
   getProfilePhoto = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + '/photo', {
+    return fetch('http://localhost:3333/api/1.0.0/user/' + UID + '/photo', {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
@@ -68,7 +68,7 @@ class HomePage extends Component {
   getCurrentUser = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ class HomePage extends Component {
   getFriends = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID + '/friends', {
+    return fetch('http://localhost:3333/api/1.0.0/user/' + UID + '/friends', {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
@@ -118,7 +118,7 @@ class HomePage extends Component {
   getPosts = async (friendsData) => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + this.state.UID +  '/post' ,{
+    return fetch('http://localhost:3333/api/1.0.0/user/' + this.state.UID +  '/post' ,{
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -143,35 +143,33 @@ class HomePage extends Component {
     return (
 <View style={styles.page}>
 
-        <View style={styles.box}>
+        <View style={styles.user}>
         <Image
             source={{
               uri: this.state.photo,
             }}
-            style={{width: 100, height: 100, backgroundColor: "grey",}}
+            style={{width: 80, height: 80, backgroundColor: "grey",}}
         />
           <Text>{this.state.info.first_name} {this.state.info.last_name} </Text>
           
           <Text>{this.state.info.friend_count} Friend(s)</Text>
-          
-
         </View>
-
-        <View style={styles.button}>
-          <Button
-            title="Friends"
-            onPress={() => this.props.navigation.navigate('Friends')}
-          />
-          <Button
-            title="Profile"
-            onPress={() => this.props.navigation.navigate('Profile')}
-          />
-          <Button
-            title="Logout"
-            onPress={() => this.props.navigation.navigate('Logout')}
-          />
+            {/* Navbar */}
+        <View style={styles.navbar}>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+        <Text> Home </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+        <Text> Friends </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+        <Text> Profile </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+        <Text> Logout </Text>
+        </TouchableOpacity>
         </View>
-        
+        <View style={{flex:8}}> </View>
 </View>
 
 

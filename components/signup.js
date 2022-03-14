@@ -22,7 +22,7 @@ class SignupPage extends Component {
 
     }
 
-    fetch('http://10.0.2.2:3333/api/1.0.0/user', {
+    fetch('http://localhost:3333/api/1.0.0/user', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',

@@ -6,7 +6,6 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, {Text} from "./styles"
-import StyledButton from "../widgets/StyledButton"
 class ProfilePage extends Component {
   constructor(props) {
     super(props);
@@ -50,7 +49,7 @@ class ProfilePage extends Component {
     const res = await fetch(data.base64);
     const blob = await res.blob();
 
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${id}/photo`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${id}/photo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'image/png',
@@ -70,7 +69,7 @@ class ProfilePage extends Component {
     console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -94,7 +93,7 @@ class ProfilePage extends Component {
     console.log('Getting posts...');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -116,7 +115,6 @@ class ProfilePage extends Component {
   };
 
   async postDatatoAsync(item){
-    
     item = JSON.stringify(item)
     await AsyncStorage.setItem('@userPost', item);
     this.props.navigation.navigate('Single Post')
@@ -131,7 +129,7 @@ class ProfilePage extends Component {
     console.log('Post Submitted');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -156,7 +154,7 @@ class ProfilePage extends Component {
     console.log('Post Deleted');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://10.0.2.2:3333/api/1.0.0/user/${UID}/post/${postID}`, {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post/${postID}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -171,12 +169,38 @@ class ProfilePage extends Component {
       });
   }
 
+  updatePost = async (postID, input) => {
+    console.log('Getting profile...');
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post/` + postID, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': session_token,
+      },
+      body: JSON.stringify(
+        {
+        text: input
+        }
+        )
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   render() {
     return (
-      <View style = {styles.page}>
-        <View style={styles.user}>
-        <Image style={{width: 60, height: 60,borderWidth: 5, backgroundColor: "grey",}}/>
-        <Image style={styles.logo} source={{ uri: this.state.photo }} />
+<View style = {styles.page}>
+
+  <View style={styles.user}>
+        <Image style={{width: 80, height: 80,borderWidth: 5, backgroundColor: "grey",}} source={{ uri: this.state.photo }} />
         <Text> 
         {this.state.info.first_name}</Text>
         <Text>
@@ -184,53 +208,71 @@ class ProfilePage extends Component {
         <Text>
         {this.state.info.email}</Text>
         <TouchableOpacity onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
-        <Text style={styles.editbutton}> Edit Profile </Text>
+        <Text> Edit Profile </Text>
+        </TouchableOpacity>
+  </View>
+        {/* Navbar */}
+        <View style={styles.navbar}>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+        <Text> Home </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+        <Text> Friends </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+        <Text> Profile </Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+        <Text> Logout </Text>
         </TouchableOpacity>
         </View>
-        
         {/* Make Post */}
-        <View>
+  <View>
           <TextInput
-          style= {styles.button}
-           type = "textarea"
-            placeholder="Write a post"
-            multiline = {true}
-            onChangeText={(input) => this.setState({ input })}
-            value={this.state.input}
+          style= {styles.input}
+          type = "textarea"
+          placeholder="Write a post"
+          multiline = {true}
+          onChangeText={(input) => this.setState({ input })}
+          value={this.state.input}
           />
           <TouchableOpacity onPress={() => this.submitPost(this.state.input)}>
           <Text style={styles.button}> Submit </Text>
           </TouchableOpacity>
-        </View>
+  </View>
 
         {/* My Posts */}
-        <View>
-          <Text>My Posts</Text>
+  <View style={styles.postarea}>
+          <Text style={styles.title}>Your Posts</Text>
           <FlatList
             data={this.state.postsData}
             keyExtractor={(item, index) => item.post_id.toString()}
             renderItem={({ item }) => (
-              <View style={styles.posts}>
+  <View style={styles.post}>
+              <View style={styles.post}>
                 <Text>{item.author.first_name} {item.author.last_name} {item.timestamp}</Text>
                 <Text>{item.text}</Text>
                 <Text>Likes:{item.numLikes}</Text>
-
+                </View>
+                <View style={styles.postbar}>
                 {/* View Post Button */}
                 <TouchableOpacity onPress={() => {this.postDatatoAsync(item)}}>
-                   
-                  <Text style={styles.button}> View </Text>
+                  <Text> View </Text>
                 </TouchableOpacity>
 
                 {/* Delete Post Button */}
                 <TouchableOpacity onPress={() => this.deletePost(item.post_id.toString())}>
-                  <Text style={styles.button}> Delete </Text>
+                  <Text> Delete </Text>
                 </TouchableOpacity>
 
-              </View>
-            )}
-          />
-        </View>
-      </View>
+                {/* Edit Post Button */}
+                <TouchableOpacity onPress={() => this.updatePost(item.author.post_id)}>
+                  <Text> Edit </Text>
+                </TouchableOpacity>
+                </View>
+  </View>)}/>
+  </View>
+</View>
     );
   }
 }

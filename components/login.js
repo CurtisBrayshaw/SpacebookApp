@@ -17,7 +17,7 @@ class LoginPage extends Component {
     };
   }
 
-  login = async () => fetch('http://10.0.2.2:3333/api/1.0.0/login', {
+  login = async () => fetch('http://localhost:3333/api/1.0.0/login', {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
@@ -52,11 +52,9 @@ class LoginPage extends Component {
 
     <View style={styles.page}> 
       <View style={styles.topper}></View>
-      <View style={styles.box}></View>
-      <View style={styles.title}>
       <Text style={styles.title}>      Spacebook </Text>
 
-                    <ScrollView>
+                    <ScrollView style={styles.info}>
                       <TextInput
                         placeholder="Enter your email..."
                         onChangeText={(email) => this.setState({ email })}
@@ -80,9 +78,7 @@ class LoginPage extends Component {
                       backgroundColor
                       onPress={() => { this.props.navigation.navigate('Signup');}}
                       />
-                  </ScrollView>
-                  </View>
-        <View style={styles.box}></View>
+                  </ScrollView> 
     </View>     
     
     );

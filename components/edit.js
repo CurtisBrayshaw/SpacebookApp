@@ -54,10 +54,10 @@ class EditPage extends Component {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
 
-    let res = await fetch(data.base64);
+    let res = data.base64
     let blob = await res.blob();
 
-    return fetch("http://10.0.2.2:3333/api/1.0.0/user/" + UID + "/photo", {
+    return fetch("http://localhost:3333/api/1.0.0/user/" + UID + "/photo", {
         method: "POST",
         headers: {
             "Content-Type": "image/png",
@@ -89,7 +89,7 @@ class EditPage extends Component {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     
-    return fetch('http://10.0.2.2:3333/api/1.0.0/user/' + UID, {
+    return fetch('http://localhost:3333/api/1.0.0/user/' + UID, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -195,6 +195,7 @@ notNull = async () => {
           placeholder="Enter New Password"
           onChangeText={(password) => this.setState({ password })}
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
+          secureTextEntry
         />
         <Button title="Submit" onPress={() => this.updateProfile() & this.props.navigation.navigate('Home')} />
       </View>
