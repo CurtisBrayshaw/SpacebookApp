@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, ScrollView, TextInput } from 'react-native';
-import styles from "./styles"
+import styles from './styles';
+
 class SignupPage extends Component {
   constructor(props) {
     super(props);
@@ -10,16 +11,15 @@ class SignupPage extends Component {
       last_name: '',
       email: '',
       password: '',
-      errortext: ""
+      errortext: '',
     };
   }
 
-  signup = () =>{
-    if(this.state.password.length < 8){
+  signup = () => {
+    if (this.state.password.length < 8) {
       this.setState({
-        errortext: "Password not long enough",
+        errortext: 'Password not long enough',
       });
-
     }
 
     fetch('http://localhost:3333/api/1.0.0/user', {
@@ -45,7 +45,7 @@ class SignupPage extends Component {
       .catch((error) => {
         console.log(error);
       });
-    }
+  };
 
   render() {
     return (

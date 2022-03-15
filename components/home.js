@@ -3,10 +3,11 @@
 /* eslint-disable linebreak-style */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Button, Image,TouchableOpacity, FlatList
+  StyleSheet, View, Button, Image, TouchableOpacity, FlatList,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles, {Text} from "./styles"
+import styles, { Text } from './styles';
+import { style } from '@mui/system';
 
 class HomePage extends Component {
   constructor(props) {
@@ -17,7 +18,6 @@ class HomePage extends Component {
       UID: [],
     };
   }
-
 
   checkLoggedIn = async () => {
     const value = await AsyncStorage.getItem('@session_token');
@@ -30,7 +30,7 @@ class HomePage extends Component {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
-    
+
     this.getCurrentUser();
     this.getProfilePhoto();
     this.getFriends();
@@ -43,28 +43,30 @@ class HomePage extends Component {
   getProfilePhoto = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://localhost:3333/api/1.0.0/user/' + UID + '/photo', {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/photo`, {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
       },
     })
-    .then((res) => {
-      return res.blob()
-    })
-    .then((resBlob) => {
-      let data = URL.createObjectURL(resBlob);
-      
-      this.setState({
-        photo: data,
-        isLoading: false,
-      });
-    })
-    .catch((err) => {
-      console.log('error', err);
-    });
-};
+      .then((res) => res.blob())
+      .then((resBlob) => {
+        const data = URL.createObjectURL(resBlob);
 
+        this.setState({
+          photo: data,
+          isLoading: false,
+        });
+        this.photoToAsync()
+      })
+      .catch((err) => {
+        console.log('error', err);
+      });
+  };
+
+photoToAsync = async() => {
+  await AsyncStorage.setItem('@photo',this.state.photo); 
+}
   getCurrentUser = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
@@ -96,14 +98,14 @@ class HomePage extends Component {
   getFriends = async () => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://localhost:3333/api/1.0.0/user/' + UID + '/friends', {
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/friends`, {
       method: 'GET',
       headers: {
         'X-Authorization': session_token,
         'Content-Type': 'application/json',
       },
     })
-    .then((response) => response.json())
+      .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
           // isLoading: false,
@@ -118,7 +120,7 @@ class HomePage extends Component {
   getPosts = async (friendsData) => {
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-    return fetch('http://localhost:3333/api/1.0.0/user/' + this.state.UID +  '/post' ,{
+    return fetch(`http://localhost:3333/api/1.0.0/user/${this.state.UID}/post`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -132,7 +134,6 @@ class HomePage extends Component {
           // isLoading: false,
           postsData: responseJson,
         });
-
       })
       .catch((error) => {
         console.log(error);
@@ -141,38 +142,43 @@ class HomePage extends Component {
 
   render() {
     return (
-<View style={styles.page}>
-
+      
+      <View style={styles.page}>
         <View style={styles.user}>
-        <Image
+          <Image
             source={{
               uri: this.state.photo,
             }}
-            style={{width: 80, height: 80, backgroundColor: "grey",}}
-        />
-          <Text>{this.state.info.first_name} {this.state.info.last_name} </Text>
-          
-          <Text>{this.state.info.friend_count} Friend(s)</Text>
+            style={styles.photo}
+          />
+          <Text>
+            {this.state.info.first_name}{' '}{this.state.info.last_name}
+          </Text>
+
+          <Text>{this.state.info.friend_count} Friends</Text>
         </View>
-            {/* Navbar */}
+
+
+            {/* Nav */}
         <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
-        <Text> Home </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
-        <Text> Friends </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
-        <Text> Profile </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
-        <Text> Logout </Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+            <Text> Home </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+            <Text> Friends </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+            <Text> Profile </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+            <Text> Logout </Text>
+          </TouchableOpacity>
         </View>
-        <View style={{flex:8}}> </View>
+        <View style={styles.postarea}>
+          <Text styles={styles.title}>Welcome to Spacebook </Text>
+        </View>
+        <View style={styles.bottom}></View>
 </View>
-
-
     );
   }
 }

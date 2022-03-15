@@ -1,10 +1,11 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { Component } from 'react';
 import {
-  ScrollView, TextInput, StyleSheet,TouchableOpacity, Button, View, FlatList, displayAlert,
+  ScrollView, TextInput, StyleSheet, TouchableOpacity, Button, View, FlatList, displayAlert, Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles, {Text} from "./styles"
+import styles, { Text } from './styles';
+
 class FriendPage extends Component {
   constructor(props) {
     super(props);
@@ -14,15 +15,17 @@ class FriendPage extends Component {
       requestList: [],
       userList: [],
       input: '',
+      info:{}
     };
   }
-
+  
   componentDidMount() {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
     this.getFriends();
     this.friendRequests();
+    this.photoFromAsync();
   }
 
   componentWillUnmount() {
@@ -35,6 +38,37 @@ class FriendPage extends Component {
     if (sessionToken == null) {
       this.props.navigation.navigate('Login');
     }
+  };
+
+  photoFromAsync = async() => {
+    const data = await AsyncStorage.getItem('@photo'); 
+    this.setState({
+      photo: data,
+    });
+  }
+
+  getCurrentUser = async () => {
+    console.log('Getting profile...');
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': session_token,
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+          // isLoading: false,
+          info: responseJson,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   getFriends = async () => {
@@ -186,11 +220,8 @@ class FriendPage extends Component {
           throw 'Something went wrong';
         }
       })
-      .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          userList: responseJson,
-        });
+      .then((response) => {
+      
       })
       .catch((error) => {
         console.log(error);
@@ -219,10 +250,7 @@ class FriendPage extends Component {
         }
       })
       .then((responseJson) => {
-        this.setState({
-          isLoading: false,
-          requestList: responseJson,
-        });
+        
       })
       .catch((error) => {
         console.log(error);
@@ -231,50 +259,61 @@ class FriendPage extends Component {
 
   vistFriendProfile = async (UID) => {
     await AsyncStorage.setItem('@friendUID', UID.toString());
-    this.props.navigation.navigate('Friend Profile')
+    this.props.navigation.navigate('Friend Profile');
   };
-
+  
   render() {
     return (
       <View style={styles.page}>
+        <View style={styles.user}>
+          <Image
+            source={{ uri: this.state.photo
+            }}
+            style={styles.photo}
+          />
+          <Text>
+            {this.state.info.first_name}{' '}{this.state.info.last_name}
+          </Text>
+
+          <Text>{this.state.info.friend_count} Friends</Text>
+        </View>
 
         {/* Navbar */}
         <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
-        <Text> Home </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
-        <Text> Friends </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
-        <Text> Profile </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
-        <Text> Logout </Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+            <Text> Home </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+            <Text> Friends </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+            <Text> Profile </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+            <Text> Logout </Text>
+          </TouchableOpacity>
         </View>
 
+
         {/* Search Bar */}
+        <View style={styles.searchbar}>
         <TextInput
           placeholder="Enter name"
           onChangeText={(input) => this.setState({ input })}
           value={this.state.input}
           style={{ borderWidth: 1, padding: 5 }}
           borderColor="black"
+          placeholderTextColor={'white'}
         />
 
         {/* Search Button */}
-        <View style={styles.box1}>
-          <Button
-            title="Search"
-            color="red"
-            onPress={() => this.getUsers(this.input)}
-          />
+        <TouchableOpacity onPress={() => this.getUsers(this.input)}>
+            <Text> Search </Text>
+          </TouchableOpacity> 
         </View>
 
-        
-
         {/* Show Potential Friends */}
+        <View style={{flex:1}}>
         <FlatList
           data={this.state.userList}
           renderItem={({ item }) => (
@@ -284,17 +323,46 @@ class FriendPage extends Component {
                 {' '}
                 {item.user_familyname}
               </Text>
-              <Button title="Request" color="red" onPress={() => this.sendRequest(item.user_id)} />
+              <TouchableOpacity onPress={() => this.sendRequest(item.user_id)}>
+            <Text> Request </Text>
+          </TouchableOpacity> 
+          </View>
+          )}
+          keyExtractor={(item, index) => item.user_id.toString()}
+        />
+        </View>
+
+        <View style={{flex:1}}>
+        {/* Friend Requests */}
+        <Text style={styles.title}>Friend Requests</Text>
+        <FlatList
+        data={this.state.requestList}
+          renderItem={({ item }) => (
+            <View style={styles.box}>
+              <Text>
+                {item.first_name}
+                {' '}
+                {item.last_name}
+              </Text>
+              <TouchableOpacity style={styles.button} onPress={() => this.acceptFriend(item.user_id)}>
+            <Text> Accept</Text>
+          </TouchableOpacity> 
+          <TouchableOpacity style={styles.button} onPress={() => this.denyFriend(item.user_id)}>
+            <Text> Deny </Text>
+          </TouchableOpacity> 
             </View>
           )}
           keyExtractor={(item, index) => item.user_id.toString()}
         />
-        {/* Friends Text */}
-        <View>
-        <Text style={styles.title}> Friends </Text>
         </View>
+
+        {/* Friends Text */}
+        <View style={{flex:3}}>
+          <Text style={styles.title}> Friends </Text>
+        
         {/* Friends */}
         <FlatList
+          style={{backgroundColor:'#0E1428'}}
           data={this.state.data}
           renderItem={({ item }) => (
             <View style={styles.box}>
@@ -303,34 +371,19 @@ class FriendPage extends Component {
                 {' '}
                 {item.user_familyname}
               </Text>
-              <Button title="Profile" onPress={() => this.vistFriendProfile(item.user_id)} />
-            </View>
+              <TouchableOpacity style={styles.button} onPress={() => this.vistFriendProfile(item.user_id)}>
+            <Text> Profile </Text>
+          </TouchableOpacity> 
+            
+              </View>
+            
           )}
           keyExtractor={(item, index) => item.user_id.toString()}
         />
-        
-        {/* Friend Requests */}
-        <Text style={styles.title}>Friend Requests</Text>
-        <FlatList
-          data={this.state.requestList}
-          renderItem={({ item }) => (
-            <View style={styles.box}>
-              <Text>
-                {item.first_name}
-                {' '}
-                {item.last_name}
-              </Text>
-              <Button title="Accept" onPress={() => this.acceptFriend(item.user_id)} />
-              <Button title="Deny" onPress={() => this.denyFriend(item.user_id)} />
-            </View>
-          )}
-          keyExtractor={(item, index) => item.user_id.toString()}
-        />
+</View>
       </View>
     );
   }
 }
-
-
 
 export default FriendPage;

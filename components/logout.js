@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Text, ScrollView, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from "./styles"
+import styles from './styles';
+
 class HomePage extends Component {
   constructor(props) {
     super(props);

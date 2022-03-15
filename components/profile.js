@@ -1,11 +1,13 @@
 /* eslint-disable react/jsx-filename-extension */
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {
   ScrollView, TextInput, Image, Button, View, FlatList, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles, {Text} from "./styles"
+import styles, { Text } from './styles';
+import { EventEmitter } from 'expo-modules-core';
+
 class ProfilePage extends Component {
   constructor(props) {
     super(props);
@@ -13,7 +15,7 @@ class ProfilePage extends Component {
       info: {},
       postsData: [],
       UID: null,
-      picURL: null
+      picURL: null,
     };
   }
 
@@ -30,6 +32,7 @@ class ProfilePage extends Component {
     });
     this.getUserPosts();
     this.getCurrentUser();
+    this.photoFromAsync();
   }
 
   componentWillUnmount() {
@@ -42,29 +45,7 @@ class ProfilePage extends Component {
     }
   };
 
-  sendToServer = async (data) => {
-    // Get these from AsyncStorage
-    const id = 10;
-    const token = 'a3b0601e54775e60b01664b1a5273d54';
-    const res = await fetch(data.base64);
-    const blob = await res.blob();
-
-    return fetch(`http://localhost:3333/api/1.0.0/user/${id}/photo`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'image/png',
-        'X-Authorization': token,
-      },
-      body: blob,
-    })
-      .then((response) => {
-        console.log('Picture added', response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
+  ///////////////////////////////////////////////////////////////////////////////
   getCurrentUser = async () => {
     console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
@@ -89,6 +70,13 @@ class ProfilePage extends Component {
       });
   };
 
+  photoFromAsync = async() => {
+    const data = await AsyncStorage.getItem('@photo'); 
+    this.setState({
+      photo: data,
+    });
+  }
+
   getUserPosts = async () => {
     console.log('Getting posts...');
     const session_token = await AsyncStorage.getItem('@session_token');
@@ -105,22 +93,20 @@ class ProfilePage extends Component {
         this.setState({
           // isLoading: false,
           postsData: responseJson,
-          
+
         });
-        console.log(responseJson)
+        console.log(responseJson);
       })
       .catch((error) => {
         console.log(error);
       });
   };
 
-  async postDatatoAsync(item){
-    item = JSON.stringify(item)
+  async postDatatoAsync(item) {
+    item = JSON.stringify(item);
     await AsyncStorage.setItem('@userPost', item);
-    this.props.navigation.navigate('Single Post')
+    this.props.navigation.navigate('Single Post');
   }
-
-
 
   async submitPost(input) {
     const state = {
@@ -137,7 +123,7 @@ class ProfilePage extends Component {
       },
       body: JSON.stringify(state),
     })
-    .then((response) => {})
+      .then((response) => {})
       .then((response) => {
         this.getUserPosts();
         this.setState({
@@ -169,113 +155,98 @@ class ProfilePage extends Component {
       });
   }
 
-  updatePost = async (postID, input) => {
-    console.log('Getting profile...');
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post/` + postID, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': session_token,
-      },
-      body: JSON.stringify(
-        {
-        text: input
-        }
-        )
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        this.setState({
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  updatePost = async (UID, postID) => {
+    await AsyncStorage.setItem('@editUID', UID.toString());
+    await AsyncStorage.setItem('@editPostID', postID.toString());
+    this.props.navigation.navigate('Edit Post');
   };
 
   render() {
     return (
-<View style = {styles.page}>
+      <View style={styles.page}>
 
-  <View style={styles.user}>
-        <Image style={{width: 80, height: 80,borderWidth: 5, backgroundColor: "grey",}} source={{ uri: this.state.photo }} />
-        <Text> 
-        {this.state.info.first_name}</Text>
-        <Text>
-        {this.state.info.last_name}</Text>
-        <Text>
-        {this.state.info.email}</Text>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
-        <Text> Edit Profile </Text>
-        </TouchableOpacity>
-  </View>
+        <View style={styles.user}>
+          <Image style={styles.photo} source={{ uri: this.state.photo }} />
+          <View style={{flex:2, alignItems:'flex-start',}}>
+          <Text>{this.state.info.first_name}</Text>
+          <Text>{this.state.info.last_name}</Text>
+          <Text>{this.state.info.email}</Text>
+          </View>
+          <TouchableOpacity style={{flex:2, backgroundColor:('#0E1428'), minHeight:'50%',borderRadius:5}} onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
+          <Text> Edit Profile </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Navbar */}
         <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
-        <Text> Home </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
-        <Text> Friends </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
-        <Text> Profile </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
-        <Text> Logout </Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+            <Text> Home </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+            <Text> Friends </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+            <Text> Profile </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+            <Text> Logout </Text>
+          </TouchableOpacity>
         </View>
+
         {/* Make Post */}
-  <View>
+        <View style={styles.compose}>
           <TextInput
-          style= {styles.input}
-          type = "textarea"
-          placeholder="Write a post"
-          multiline = {true}
-          onChangeText={(input) => this.setState({ input })}
-          value={this.state.input}
+            style={styles.compose}
+            type="textarea"
+            placeholder="Write a post"
+            multiline={true}
+            numberOfLines="5"
+            placeholderTextColor={'white'}
+            
+          // autoCapitalize = "true"
+            onChangeText={(input) => this.setState({ input })}
+            value={this.state.input}
           />
           <TouchableOpacity onPress={() => this.submitPost(this.state.input)}>
-          <Text style={styles.button}> Submit </Text>
+            <Text style={styles.button}> Submit </Text>
           </TouchableOpacity>
-  </View>
+        </View>
 
         {/* My Posts */}
-  <View style={styles.postarea}>
+      <View style={styles.postarea}>
           <Text style={styles.title}>Your Posts</Text>
           <FlatList
             data={this.state.postsData}
             keyExtractor={(item, index) => item.post_id.toString()}
             renderItem={({ item }) => (
-  <View style={styles.post}>
-              <View style={styles.post}>
-                <Text>{item.author.first_name} {item.author.last_name} {item.timestamp}</Text>
-                <Text>{item.text}</Text>
-                <Text>Likes:{item.numLikes}</Text>
-                </View>
-                <View style={styles.postbar}>
-                {/* View Post Button */}
-                <TouchableOpacity onPress={() => {this.postDatatoAsync(item)}}>
-                  <Text> View </Text>
-                </TouchableOpacity>
+    <View style={{minWidth:"100%"}}>
+      <View style={styles.post}>
+                  <Text>{item.author.first_name} {item.author.last_name} at {item.timestamp}
+                  </Text>
+                  <Text>{item.text}</Text>
+                  <Text>
+                    Likes:
+                    {item.numLikes}
+                  </Text>
+      </View>
+      <View style={styles.postbar}>
+                  {/* View Post Button */}
+                  <TouchableOpacity onPress={() => { this.postDatatoAsync(item); }}>
+                    <Text> View </Text>
+                  </TouchableOpacity>
 
-                {/* Delete Post Button */}
-                <TouchableOpacity onPress={() => this.deletePost(item.post_id.toString())}>
-                  <Text> Delete </Text>
-                </TouchableOpacity>
-
-                {/* Edit Post Button */}
-                <TouchableOpacity onPress={() => this.updatePost(item.author.post_id)}>
-                  <Text> Edit </Text>
-                </TouchableOpacity>
-                </View>
-  </View>)}/>
-  </View>
-</View>
+                  {/* Delete Post Button */}
+                  <TouchableOpacity onPress={() => this.deletePost(item.post_id.toString())}>
+                    <Text> Delete </Text>
+                  </TouchableOpacity>
+          </View>
+      </View>
+            )}
+          />
+    </View>
+        {/* <View style={styles.bottom}></View> */}
+    </View>
     );
   }
 }
 export default ProfilePage;
-
-

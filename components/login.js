@@ -41,6 +41,7 @@ class LoginPage extends Component {
     })
     .catch((error) => {
       console.log(error);
+      console.log(responseJson,token)
     });
 
   setPassword = async () =>{
@@ -86,4 +87,3 @@ class LoginPage extends Component {
 }
 
 export default LoginPage;
-

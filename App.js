@@ -15,7 +15,7 @@ import ProfilePage from './components/profile';
 import EditPage from './components/edit';
 import FriendProfilePage from './components/friendprofile';
 import ViewPostPage from './components/singlepost';
-import EditPostPage from './components/editpost';
+import CameraPage from './components/camera';
 const Stack = createNativeStackNavigator();
 
 // eslint-disable-next-line react/prefer-stateless-function
@@ -34,7 +34,7 @@ class App extends Component {
           <Stack.Screen name="Edit Profile" component={EditPage} />
           <Stack.Screen name="Friend Profile" component={FriendProfilePage} />
           <Stack.Screen name="Single Post" component={ViewPostPage} />
-          <Stack.Screen name="Edit Post" component={EditPostPage} />
+          <Stack.Screen name="Camera" component={CameraPage} />
         </Stack.Navigator>
 
       </NavigationContainer>
