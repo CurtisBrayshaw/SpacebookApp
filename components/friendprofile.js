@@ -36,12 +36,33 @@ class FriendProfilePage extends Component {
     }
   };
 
-  checkLoggedIn = async () => {
-    const value = await AsyncStorage.getItem('@session_token');
-    if (value == null) {
-      this.props.navigation.navigate('Login');
-    }
-  };
+  async submitPost(input) {
+    const state = {
+      text: input,
+    };
+    console.log('Post Submitted');
+    const session_token = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@friendUID');
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': session_token,
+      },
+      body: JSON.stringify(state),
+    })
+      .then((response) => {})
+      .then((response) => {
+        this.getUserPosts();
+        this.setState({
+          isLoading: false,
+          postsData: responseJson,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   getCurrentUser = async () => {
     console.log('Getting profile...');
@@ -58,7 +79,7 @@ class FriendProfilePage extends Component {
       .then((responseJson) => {
         console.log(responseJson);
         this.setState({
-          // isLoading: false,
+          isLoading: false,
           info: responseJson,
         });
       })
@@ -142,30 +163,66 @@ class FriendProfilePage extends Component {
           throw 'Something went wrong';
         }
       })
-      .then((response) => {
+      .then(() => {
         this.getUserPosts();
-        this.setState({
-          // isLoading: false,
-        });
       })
       .catch((error) => {
         console.log(error);
       });
   }
-
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
+    if (this.state.isLoading){
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#0E1428',
+          }}>
+          <Text>Loading..</Text>
+        </View>
+      );
+    }else{
     return (
       // User
       <View style={styles.page}>
       <View style={styles.user}>
           <Image style={styles.photo} source={{ uri: this.state.photo }} />
-          <View style={{flex:2, alignItems:'flex-start',}}>
+          <View style={{flex:2, alignItems:'flex-start'}}>
           <Text>{this.state.info.first_name}</Text>
           <Text>{this.state.info.last_name}</Text>
           <Text>{this.state.info.email}</Text>
-          </View>4
+          </View>
+      </View>
+        {/* Nav */}
+          <View style={styles.navbar}>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+            <Text> Home </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+            <Text> Friends </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+            <Text> Profile </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+            <Text> Logout </Text>
+          </TouchableOpacity>
         </View>
-
         {/* Make Post */}
           <View>
           <TextInput
@@ -185,7 +242,7 @@ class FriendProfilePage extends Component {
 
         {/* Posts */}
       <View style={styles.postarea}>
-          <Text style={styles.title}>Your Posts</Text>
+          <Text style={styles.title}>Posts</Text>
           <FlatList
             data={this.state.postsData}
             keyExtractor={(item, index) => item.post_id.toString()}
@@ -220,34 +277,15 @@ class FriendProfilePage extends Component {
                   <TouchableOpacity onPress={() => this.unlikePost(item.author.user_id, item.post_id)}>
                   <Text> Unlike </Text>
                   </TouchableOpacity>
-                  </View>
-                  </View>
-                
-              
+                </View>
+              </View>
             )}
           />
         </View>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        {/* page view  */}
       </View>
       
     );
   }
 }
-
+}
 export default FriendProfilePage;

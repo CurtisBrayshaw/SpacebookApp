@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, { Text } from './styles';
-import { style } from '@mui/system';
+
 
 class HomePage extends Component {
   constructor(props) {
@@ -16,6 +16,7 @@ class HomePage extends Component {
       info: {},
       picURL: null,
       UID: [],
+      isLoading: true,
     };
   }
 
@@ -79,9 +80,8 @@ photoToAsync = async() => {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-        // console.log(responseJson);
         this.setState({
-          // isLoading: false,
+          isLoading: false,
           info: responseJson,
         });
       })
@@ -89,6 +89,7 @@ photoToAsync = async() => {
         await AsyncStorage.setItem('@first_name', this.state.info.first_name);
         await AsyncStorage.setItem('@last_name', this.state.info.last_name);
         await AsyncStorage.setItem('@email', this.state.info.email);
+
       })
       .catch((error) => {
         console.log(error);
@@ -108,7 +109,7 @@ photoToAsync = async() => {
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
-          // isLoading: false,
+          isLoading: false,
           friendsData: responseJson,
         });
       })
@@ -131,7 +132,7 @@ photoToAsync = async() => {
       .then((responseJson) => {
         console.log(responseJson);
         this.setState({
-          // isLoading: false,
+          isLoading: false,
           postsData: responseJson,
         });
       })
@@ -139,8 +140,33 @@ photoToAsync = async() => {
         console.log(error);
       });
   };
-
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
+    if (this.state.isLoading){
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#0E1428',
+          }}>
+          <Text>Loading..</Text>
+        </View>
+      );
+    }else{
     return (
       
       <View style={styles.page}>
@@ -182,5 +208,5 @@ photoToAsync = async() => {
     );
   }
 }
-
+}
 export default HomePage;

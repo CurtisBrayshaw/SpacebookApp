@@ -14,6 +14,7 @@ class LoginPage extends Component {
 
     this.state = {
       password: '',
+      isLoading: true,
     };
   }
 
@@ -27,33 +28,37 @@ class LoginPage extends Component {
     .then((response) => {
       if (response.status === 200) {
         return response.json();
-      } if (response.status === 400) {
-        throw 'Invalid email or password';
-      } else {
-        throw 'Something went wrong';
-      }
+      } else {this.errorHandle(response.status)}
     })
     .then(async (responseJson) => {
       console.log(responseJson);
       await AsyncStorage.setItem('@session_token', responseJson.token);
       await AsyncStorage.setItem('@UID', responseJson.id.toString());
+      await AsyncStorage.setItem('@password', this.state.password);
       this.props.navigation.navigate('Home');
     })
     .catch((error) => {
-      console.log(error);
-      console.log(responseJson,token)
     });
-
-  setPassword = async () =>{
-    await AsyncStorage.setItem('@password', this.state.password);
-  }
-
+    
+    errorHandle(status){
+      if (status === 400) {
+       throw 'Bad Request';
+     }if (status === 401) {
+       throw 'Unauthorised';
+     }if (status === 403) {
+       throw 'Forbidden';
+     }if (status === 404) {
+       throw 'Not Found';
+     }if (status === 500) {
+       throw 'Server Error';
+     }
+    }
   render() {
     return (
 
     <View style={styles.page}> 
       <View style={styles.topper}></View>
-      <Text style={styles.title}>      Spacebook </Text>
+      <Text style={styles.spacebook}>      Spacebook </Text>
 
                     <ScrollView style={styles.info}>
                       <TextInput
@@ -64,7 +69,7 @@ class LoginPage extends Component {
                       />
                       <TextInput
                         placeholder="Enter your password..."
-                        onChangeText={(password) => this.setState({ password }) & this.setPassword()}
+                        onChangeText={(password) => this.setState({ password })}
                         value={this.state.password}
                         secureTextEntry
                         style={styles.input}
@@ -73,10 +78,11 @@ class LoginPage extends Component {
                       <Button
                         title="Login"
                         onPress={() => this.login()}
+                        color={'#F0A202'}
                       />
                       <Button
                       title = "Don't have an account?"
-                      backgroundColor
+                      color={'#0E1428'}
                       onPress={() => { this.props.navigation.navigate('Signup');}}
                       />
                   </ScrollView> 

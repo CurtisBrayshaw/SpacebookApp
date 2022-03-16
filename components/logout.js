@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { Text, ScrollView, Button } from 'react-native';
+import {ScrollView, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from './styles';
 
+import styles, { Text } from './styles';
 class HomePage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       token: '',
+      isLoading: true,
     };
   }
 
@@ -41,6 +42,8 @@ class HomePage extends Component {
       },
     })
       .then((response) => {
+        this.setState({
+        isLoading: false})
         if (response.status === 200) {
           this.props.navigation.navigate('Login');
         } else if (response.status === 401) {
@@ -54,13 +57,22 @@ class HomePage extends Component {
         ToastAndroid.show(error, ToastAndroid.SHORT);
       });
   };
-
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
     return (
-      <ScrollView>
-        <Text style={{
-          fontSize: 18, fontWeight: 'bold', padding: 5, margin: 5,
-        }}
+      <ScrollView style={{backgroundColor:'#0E1428' }}>
+        <Text style={styles.title}
         >
           Really?
         </Text>

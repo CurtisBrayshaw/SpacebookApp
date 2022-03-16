@@ -1,9 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 
 import React, { Component } from 'react';
-import {
-  ScrollView, TextInput, Image, Button, View, FlatList, StyleSheet, TouchableOpacity,
-} from 'react-native';
+import {TextInput, View, TouchableOpacity, Image} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, { Text } from './styles';
 
@@ -32,6 +30,7 @@ class ViewPostPage extends Component {
     });
     this.postsDataFromAsync();
     this.getSinglePost();
+    this.photoFromAsync();
   }
 
   componentWillUnmount() {
@@ -51,6 +50,13 @@ class ViewPostPage extends Component {
     });
   }
 
+  photoFromAsync = async() => {
+    const data = await AsyncStorage.getItem('@photo'); 
+    this.setState({
+      photo: data,
+    });
+  }
+
   getSinglePost = async () => {
     console.log('Getting posts...');
     const session_token = await AsyncStorage.getItem('@session_token');
@@ -66,11 +72,9 @@ class ViewPostPage extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
-        // isLoading: false,
-          info: responseJson,
+        info: responseJson,
         });
         this.setState({
-        // isLoading: false,
           email: this.state.info.author.email,
           first_name: this.state.info.author.first_name,
           last_name: this.state.info.author.last_name,
@@ -108,15 +112,58 @@ class ViewPostPage extends Component {
         this.getSinglePost();
         this.props.navigation.navigate('Home');
         this.props.navigation.navigate('Edit Post');
+        this.setState({
+        isLoading: false})
       })
       .catch((error) => {
         console.log(error);
       });
   };
-
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
     return (
       <View style={styles.page}>
+        <View style={styles.user}>
+          <Image
+            source={{
+              uri: this.state.photo,
+            }}
+            style={styles.photo}
+          />
+          <Text>
+            {this.state.info.first_name}{' '}{this.state.info.last_name}
+          </Text>
+
+          <Text>{this.state.info.friend_count} Friends</Text>
+        </View>
+
+
+            {/* Nav */}
+        <View style={styles.navbar}>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
+            <Text> Home </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Friends'); }}>
+            <Text> Friends </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Profile'); }}>
+            <Text> Profile </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.props.navigation.navigate('Logout'); }}>
+            <Text> Logout </Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.postarea}>
           <View style={styles.post}>
             <Text>
@@ -135,7 +182,7 @@ class ViewPostPage extends Component {
               style={styles.input}
               type="textarea"
               placeholder="Update your post"
-              multiline
+              numberOfLines={5}
               onChangeText={(input) => this.setState({ input })}
             />
             {/* Edit Post Button */}

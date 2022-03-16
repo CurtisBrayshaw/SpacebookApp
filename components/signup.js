@@ -31,6 +31,8 @@ class SignupPage extends Component {
     })
       .then((response) => {
         if (response.status === 201) {
+          this.setState({
+          isLoading: false})
           return response.json();
         } if (response.status === 400) {
           throw 'Failed validation';
@@ -46,9 +48,20 @@ class SignupPage extends Component {
         console.log(error);
       });
   };
-
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
-    return (
+      return (
       <ScrollView>
         <TextInput
           placeholder="Enter your first name..."

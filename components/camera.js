@@ -11,6 +11,7 @@ class CameraPage extends Component {
     this.state = {
       hasPermission: null,
       type: Camera.Constants.Type.back,
+      isLoading: true,
     };
   }
 
@@ -49,13 +50,28 @@ class CameraPage extends Component {
       body: blob,
     })
       .then((response) => {
-        console.log('Picture added', response);
+        if (response.status === 200) {
+          console.log('Picture added', response);
+          this.setState({
+          isLoading: false})
+        } else {this.errorHandle(response.status)}
       })
       .catch((err) => {
         console.log(err);
       });
   };
-
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
     if (this.state.hasPermission) {
       return (

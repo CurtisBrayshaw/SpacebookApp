@@ -1,6 +1,5 @@
 /* eslint-disable linebreak-style */
 import { StyleSheet, View } from 'react-native';
-import { TouchableOpacity } from 'react-native-web';
 import styled from 'styled-components/native';
 
 export default StyleSheet.create({
@@ -16,12 +15,12 @@ export default StyleSheet.create({
   // singlepost
 
   page: {
-    backgroundColor: ('#0E1428'),
+    backgroundColor: '#0E1428',
     flex: 1,
     alignContent: 'flex-start',
   },
   user: {
-    backgroundColor: ('#3285a8'),
+    backgroundColor: '#3285a8',
     flexDirection:'row',
     flex:1,
     justifyContent:'space-between',
@@ -41,15 +40,16 @@ export default StyleSheet.create({
     justifyContent: 'space-around',
     },
   compose: {
-    backgroundColor: ('#0E1428'),
-    borderColor: ('#0E1428'),
+    backgroundColor: '#0E1428',
+    borderColor: '#0E1428',
     flex:2.2,
     borderColor: '#F0A202',
-    borderWidth: 1
+    borderWidth: 1,
+    maxWidth:'100%'
   },
   postarea: {
     flex: 7,
-    backgroundColor: ('#0E1428'),
+    backgroundColor: '#0E1428',
     borderColor: '#F0A202',
     borderWidth: 1,
     marginLeft: 5,
@@ -58,14 +58,13 @@ export default StyleSheet.create({
     alignItems: 'stretch',
   },
   bottom: {
-    backgroundColor: ('#F0A202'),
+    backgroundColor: '#F0A202',
     flex:0.2,
     alignItems: 'flex-start',
     margin: 5,
-    
   },
   post: {
-    backgroundColor: ('#0E1428'),
+    backgroundColor: '#0E1428',
     margin: 3,
     alignItems: 'flex-start',
     borderWidth: 1,
@@ -73,31 +72,54 @@ export default StyleSheet.create({
     flexGrow: 1,
     borderRadius: 5,
     flex: 1,
-    minWidth:"100%"
+    minWidth:"100%",
+    maxWidth:"100"
+
   },
-  
+  spacebook: {
+    letterSpacing: 2,
+    fontSize: 40,
+    padding:10,
+    color: '#F0A202'
+  },
   title: {
     letterSpacing: 2,
     fontSize: 25,
+    padding:1,
   },
   editbutton: {
-    backgroundColor: ('#F0A202'),
+    backgroundColor: '#F0A202',
     padding: 10,
     width: 50,
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
   button: {
-    backgroundColor: ('#F0A202'),
+    backgroundColor:'#F0A202',
     padding: 5,
     justifyContent: 'center',
     flexDirection: 'row',
     borderRadius: 5,
     maxWidth:'30%',
-    alignItems:'center'
+    alignItems:'center',
+    flex:2,
+    minHeight:'50%',
   },
+
+  friendsbutton: {
+    backgroundColor:'#F0A202',
+    padding: 5,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    borderRadius: 5,
+    maxWidth:'30%',
+    alignItems:'center',
+    flex:2,
+    minHeight:'50%',
+  },
+
   postbar: {
-    backgroundColor: ('#0E1428'),
+    backgroundColor: '#0E1428',
     margin: 5,
     alignItems: 'flex-end',
   },
@@ -112,16 +134,24 @@ export default StyleSheet.create({
   },
   
   input: {
-    backgroundColor: ('#0E1428'),
-    borderColor: ('#0E1428'),
+    backgroundColor: '#0E1428',
+    borderColor: '#F0A202',
     flex: 2,
     minHeight:'80%'
   },
   searchbar: {
-    flex:0.5,
-    borderColor:'#0E1428',
+    flex:0.6,
+    borderColor:'#F0A202',
     borderWidth:1,
-    borderRadius: 5   
+    borderRadius: 5  
+  },
+  requests: {
+    flex:3,
+    flexDirection:'row',
+    minWidth:'100%',
+    borderColor:'#F0A202',
+    borderWidth:1,
+    borderRadius: 5  
   }
 });
 

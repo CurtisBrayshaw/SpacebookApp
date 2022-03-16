@@ -16,6 +16,7 @@ class ProfilePage extends Component {
       postsData: [],
       UID: null,
       picURL: null,
+      isLoading: true,
     };
   }
 
@@ -45,7 +46,6 @@ class ProfilePage extends Component {
     }
   };
 
-  ///////////////////////////////////////////////////////////////////////////////
   getCurrentUser = async () => {
     console.log('Getting profile...');
     const session_token = await AsyncStorage.getItem('@session_token');
@@ -61,7 +61,7 @@ class ProfilePage extends Component {
       .then((responseJson) => {
         console.log(responseJson);
         this.setState({
-          // isLoading: false,
+          isLoading: false,
           info: responseJson,
         });
       })
@@ -91,7 +91,7 @@ class ProfilePage extends Component {
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
-          // isLoading: false,
+          isLoading: false,
           postsData: responseJson,
 
         });
@@ -127,7 +127,7 @@ class ProfilePage extends Component {
       .then((response) => {
         this.getUserPosts();
         this.setState({
-          // isLoading: false,
+          isLoading: false,
           postsData: responseJson,
         });
       })
@@ -148,6 +148,8 @@ class ProfilePage extends Component {
       },
     })
       .then((response) => {
+        this.setState({
+        isLoading: false})
         this.getUserPosts();
       })
       .catch((error) => {
@@ -160,8 +162,33 @@ class ProfilePage extends Component {
     await AsyncStorage.setItem('@editPostID', postID.toString());
     this.props.navigation.navigate('Edit Post');
   };
-
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
+    if (this.state.isLoading){
+      return (
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#0E1428',
+          }}>
+          <Text>Loading..</Text>
+        </View>
+      );
+    }else{
     return (
       <View style={styles.page}>
 
@@ -172,7 +199,7 @@ class ProfilePage extends Component {
           <Text>{this.state.info.last_name}</Text>
           <Text>{this.state.info.email}</Text>
           </View>
-          <TouchableOpacity style={{flex:2, backgroundColor:('#0E1428'), minHeight:'50%',borderRadius:5}} onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
+          <TouchableOpacity style={{}} onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
           <Text> Edit Profile </Text>
           </TouchableOpacity>
         </View>
@@ -200,10 +227,8 @@ class ProfilePage extends Component {
             type="textarea"
             placeholder="Write a post"
             multiline={true}
-            numberOfLines="5"
+            numberOfLines="4"
             placeholderTextColor={'white'}
-            
-          // autoCapitalize = "true"
             onChangeText={(input) => this.setState({ input })}
             value={this.state.input}
           />
@@ -228,25 +253,23 @@ class ProfilePage extends Component {
                     Likes:
                     {item.numLikes}
                   </Text>
-      </View>
-      <View style={styles.postbar}>
                   {/* View Post Button */}
                   <TouchableOpacity onPress={() => { this.postDatatoAsync(item); }}>
                     <Text> View </Text>
                   </TouchableOpacity>
 
                   {/* Delete Post Button */}
-                  <TouchableOpacity onPress={() => this.deletePost(item.post_id.toString())}>
+                  <TouchableOpacity style={{width:'50%', height:'20%'}}onPress={() => this.deletePost(item.post_id.toString())}>
                     <Text> Delete </Text>
                   </TouchableOpacity>
-          </View>
+      </View>
       </View>
             )}
           />
     </View>
-        {/* <View style={styles.bottom}></View> */}
     </View>
     );
   }
+}
 }
 export default ProfilePage;

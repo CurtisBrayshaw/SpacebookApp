@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Text, Button, TextInput, TouchableOpacity,
+  StyleSheet, View, Button, TextInput, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import styles from './styles';
+import styles, { Text } from './styles';
 
 class EditPage extends Component {
   constructor(props) {
@@ -40,11 +40,9 @@ class EditPage extends Component {
   };
 
   sendToServer = async (data) => {
-    // Get these from AsyncStorage
     console.log('Sent to server..');
     const session_token = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
-
     const res = data.base64;
     const blob = await res.blob();
 
@@ -57,7 +55,9 @@ class EditPage extends Component {
       body: blob,
     })
       .then((response) => {
-        console.log('Picture added', response);
+        if (response.status === 200 || 201) {
+          console.log('Picture added', response);
+        } else {this.errorHandle(response.status)}
       })
       .catch((err) => {
         console.log(err);
@@ -84,10 +84,13 @@ class EditPage extends Component {
         },
       ),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 200 || 201) {
+          console.log('Updated Profile')
+        } else {this.errorHandle(response.status)}
+      })
       .then((responseJson) => {
         this.setState({
-          // isLoading: false,
           allinfo: responseJson,
         });
       })
@@ -109,6 +112,18 @@ class EditPage extends Component {
     this.setState({ password: await AsyncStorage.getItem('@password') });
   };
 
+  errorHandle(status){
+    if (status === 400) {
+     throw 'Bad Request';
+   }if (status === 401) {
+     throw 'Unauthorised';
+   }if (status === 403) {
+     throw 'Forbidden';
+   }if (status === 404) {
+     throw 'Not Found';
+   }if (status === 500) {
+     throw 'Server Error';
+   }}
   render() {
     return (
       <View style={styles.page}>
