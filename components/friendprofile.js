@@ -1,8 +1,14 @@
+/* eslint-disable max-len */
+/* eslint-disable no-throw-literal */
+/* eslint-disable no-param-reassign */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/prop-types */
+/* eslint-disable linebreak-style */
 /* eslint-disable react/jsx-filename-extension */
 
 import React, { Component } from 'react';
 import {
-  ScrollView, TextInput, Image, Button, View, FlatList, StyleSheet, TouchableOpacity,
+  TextInput, Image, View, FlatList, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, { Text } from './styles';
@@ -14,7 +20,6 @@ class FriendProfilePage extends Component {
     this.state = {
       info: {},
       postsData: [],
-      UID: null,
     };
   }
 
@@ -27,6 +32,7 @@ class FriendProfilePage extends Component {
   }
 
   componentWillUnmount() {
+    this.unsubscribe();
   }
 
   checkLoggedIn = async () => {
@@ -36,43 +42,15 @@ class FriendProfilePage extends Component {
     }
   };
 
-  async submitPost(input) {
-    const state = {
-      text: input,
-    };
-    console.log('Post Submitted');
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@friendUID');
-    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': session_token,
-      },
-      body: JSON.stringify(state),
-    })
-      .then((response) => {})
-      .then((response) => {
-        this.getUserPosts();
-        this.setState({
-          isLoading: false,
-          postsData: responseJson,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
   getCurrentUser = async () => {
     console.log('Getting profile...');
     const friendUID = await AsyncStorage.getItem('@friendUID');
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     return fetch(`http://localhost:3333/api/1.0.0/user/${friendUID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
       .then((response) => response.json())
@@ -88,22 +66,16 @@ class FriendProfilePage extends Component {
       });
   };
 
-  async postDatatoAsync(item) {
-    item = JSON.stringify(item);
-    await AsyncStorage.setItem('@userPost', item);
-    this.props.navigation.navigate('Single Post');
-  }
-
   getUserPosts = async () => {
     console.log('Getting posts...');
     const friendUID = await AsyncStorage.getItem('@friendUID');
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     console.log(friendUID);
     return fetch(`http://localhost:3333/api/1.0.0/user/${friendUID}/post`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
       .then((response) => response.json())
@@ -119,22 +91,54 @@ class FriendProfilePage extends Component {
       });
   };
 
+  async postDatatoAsync(item) {
+    item = JSON.stringify(item);
+    await AsyncStorage.setItem('@userPost', item);
+    this.props.navigation.navigate('Single Post');
+  }
+
+  async submitPost(input) {
+    const state = {
+      text: input,
+    };
+    console.log('Post Submitted');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@friendUID');
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': sessionToken,
+      },
+      body: JSON.stringify(state),
+    })
+      .then(() => {})
+      .then(() => {
+        this.getUserPosts();
+        this.setState({
+          isLoading: false,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   async likePost(friendID, PID) {
     console.log('Post Liked');
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     console.log(friendID);
     return fetch(`http://localhost:3333/api/1.0.0/user/${friendID}/post/${PID}/like`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
-      .then((response) => {})
-      .then((response) => {
+      .then(() => {})
+      .then(() => {
         this.getUserPosts();
         this.setState({
-          // isLoading: false,
         });
       })
       .catch((error) => {
@@ -144,17 +148,16 @@ class FriendProfilePage extends Component {
 
   async unlikePost(friendID, PID) {
     console.log('Post Liked');
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     console.log(friendID);
     return fetch(`http://localhost:3333/api/1.0.0/user/${friendID}/post/${PID}/like`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
       .then((response) => {
-
         if (response.status === 200) {
           return response.json();
         } if (response.status === 400) {
@@ -170,20 +173,23 @@ class FriendProfilePage extends Component {
         console.log(error);
       });
   }
-  errorHandle(status){
+
+  errorHandle(status) {
     if (status === 400) {
-     throw 'Bad Request';
-   }if (status === 401) {
-     throw 'Unauthorised';
-   }if (status === 403) {
-     throw 'Forbidden';
-   }if (status === 404) {
-     throw 'Not Found';
-   }if (status === 500) {
-     throw 'Server Error';
-   }}
+      throw 'Bad Request';
+    } if (status === 401) {
+      throw 'Unauthorised';
+    } if (status === 403) {
+      throw 'Forbidden';
+    } if (status === 404) {
+      throw 'Not Found';
+    } if (status === 500) {
+      throw 'Server Error';
+    }
+  }
+
   render() {
-    if (this.state.isLoading){
+    if (this.state.isLoading) {
       return (
         <View
           style={{
@@ -192,24 +198,25 @@ class FriendProfilePage extends Component {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: '#0E1428',
-          }}>
+          }}
+        >
           <Text>Loading..</Text>
         </View>
       );
-    }else{
+    }
     return (
       // User
       <View style={styles.page}>
-      <View style={styles.user}>
+        <View style={styles.user}>
           <Image style={styles.photo} source={{ uri: this.state.photo }} />
-          <View style={{flex:2, alignItems:'flex-start'}}>
-          <Text>{this.state.info.first_name}</Text>
-          <Text>{this.state.info.last_name}</Text>
-          <Text>{this.state.info.email}</Text>
+          <View style={{ flex: 2, alignItems: 'flex-start' }}>
+            <Text>{this.state.info.first_name}</Text>
+            <Text>{this.state.info.last_name}</Text>
+            <Text>{this.state.info.email}</Text>
           </View>
-      </View>
+        </View>
         {/* Nav */}
-          <View style={styles.navbar}>
+        <View style={styles.navbar}>
           <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
             <Text> Home </Text>
           </TouchableOpacity>
@@ -224,12 +231,12 @@ class FriendProfilePage extends Component {
           </TouchableOpacity>
         </View>
         {/* Make Post */}
-          <View>
+        <View>
           <TextInput
             style={styles.compose}
             type="textarea"
             placeholder="Write a post"
-            multiline={true}
+            multiline
             numberOfLines="5"
           // autoCapitalize = "true"
             onChangeText={(input) => this.setState({ input })}
@@ -241,22 +248,29 @@ class FriendProfilePage extends Component {
         </View>
 
         {/* Posts */}
-      <View style={styles.postarea}>
+        <View style={styles.postarea}>
           <Text style={styles.title}>Posts</Text>
           <FlatList
             data={this.state.postsData}
             keyExtractor={(item, index) => item.post_id.toString()}
             renderItem={({ item }) => (
-            
-            <View style={styles.post}>
-                  <Text>{item.author.first_name} {item.author.last_name} at {item.timestamp}
-                  </Text>
-                  <Text>{item.text}</Text>
-                  <Text>
-                    Likes:
-                    {item.numLikes}
-                  </Text>
-              <View style={styles.postbar}>
+
+              <View style={styles.post}>
+                <Text>
+                  {item.author.first_name}
+                  {' '}
+                  {item.author.last_name}
+                  {' '}
+                  at
+                  {' '}
+                  {item.timestamp}
+                </Text>
+                <Text>{item.text}</Text>
+                <Text>
+                  Likes:
+                  {item.numLikes}
+                </Text>
+                <View style={styles.postbar}>
 
                   {/* View Post Button */}
                   <TouchableOpacity onPress={() => { this.postDatatoAsync(item); }}>
@@ -270,12 +284,12 @@ class FriendProfilePage extends Component {
 
                   {/* Like Button */}
                   <TouchableOpacity onPress={() => this.likePost(item.author.user_id, item.post_id)}>
-                  <Text> Like </Text>
+                    <Text> Like </Text>
                   </TouchableOpacity>
 
                   {/* Unlike Button */}
                   <TouchableOpacity onPress={() => this.unlikePost(item.author.user_id, item.post_id)}>
-                  <Text> Unlike </Text>
+                    <Text> Unlike </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -283,9 +297,8 @@ class FriendProfilePage extends Component {
           />
         </View>
       </View>
-      
+
     );
   }
-}
 }
 export default FriendProfilePage;

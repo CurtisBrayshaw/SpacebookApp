@@ -1,12 +1,14 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-filename-extension */
 
 import React, { Component } from 'react';
 import {
-  ScrollView, TextInput, Image, Button, View, FlatList, StyleSheet, TouchableOpacity,
+  TextInput, Image, View, FlatList, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, { Text } from './styles';
-import { EventEmitter } from 'expo-modules-core';
 
 class ProfilePage extends Component {
   constructor(props) {
@@ -14,18 +16,9 @@ class ProfilePage extends Component {
     this.state = {
       info: {},
       postsData: [],
-      UID: null,
-      picURL: null,
       isLoading: true,
     };
   }
-
-  checkLoggedIn = async () => {
-    const value = await AsyncStorage.getItem('@session_token');
-    if (value == null) {
-      this.props.navigation.navigate('Login');
-    }
-  };
 
   async componentDidMount() {
     this.unsubscribe = this.props.navigation.addListener('focus', () => {
@@ -37,6 +30,7 @@ class ProfilePage extends Component {
   }
 
   componentWillUnmount() {
+    this.unsubscribe();
   }
 
   checkLoggedIn = async () => {
@@ -48,13 +42,13 @@ class ProfilePage extends Component {
 
   getCurrentUser = async () => {
     console.log('Getting profile...');
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch(`http://localhost:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
       .then((response) => response.json())
@@ -70,22 +64,21 @@ class ProfilePage extends Component {
       });
   };
 
-  photoFromAsync = async() => {
-    const data = await AsyncStorage.getItem('@photo'); 
+  photoFromAsync = async () => {
+    const data = await AsyncStorage.getItem('@photo');
     this.setState({
       photo: data,
     });
-  }
+  };
 
   getUserPosts = async () => {
-    console.log('Getting posts...');
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
       .then((response) => response.json())
@@ -102,10 +95,24 @@ class ProfilePage extends Component {
       });
   };
 
-  async postDatatoAsync(item) {
-    item = JSON.stringify(item);
-    await AsyncStorage.setItem('@userPost', item);
-    this.props.navigation.navigate('Single Post');
+  async deletePost(postID) {
+    console.log('Post Deleted');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
+    const UID = await AsyncStorage.getItem('@UID');
+    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post/${postID}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Authorization': sessionToken,
+      },
+    })
+      .then(() => {
+        this.setState({ isLoading: false });
+        this.getUserPosts();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   async submitPost(input) {
@@ -113,22 +120,21 @@ class ProfilePage extends Component {
       text: input,
     };
     console.log('Post Submitted');
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
       body: JSON.stringify(state),
     })
-      .then((response) => {})
-      .then((response) => {
+      .then(() => {})
+      .then(() => {
         this.getUserPosts();
         this.setState({
           isLoading: false,
-          postsData: responseJson,
         });
       })
       .catch((error) => {
@@ -136,46 +142,28 @@ class ProfilePage extends Component {
       });
   }
 
-  async deletePost(postID) {
-    console.log('Post Deleted');
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/post/${postID}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': session_token,
-      },
-    })
-      .then((response) => {
-        this.setState({
-        isLoading: false})
-        this.getUserPosts();
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+  async postDatatoAsync(item) {
+    item = JSON.stringify(item);
+    await AsyncStorage.setItem('@userPost', item);
+    this.props.navigation.navigate('Single Post');
   }
 
-  updatePost = async (UID, postID) => {
-    await AsyncStorage.setItem('@editUID', UID.toString());
-    await AsyncStorage.setItem('@editPostID', postID.toString());
-    this.props.navigation.navigate('Edit Post');
-  };
-  errorHandle(status){
+  errorHandle(status) {
     if (status === 400) {
-     throw 'Bad Request';
-   }if (status === 401) {
-     throw 'Unauthorised';
-   }if (status === 403) {
-     throw 'Forbidden';
-   }if (status === 404) {
-     throw 'Not Found';
-   }if (status === 500) {
-     throw 'Server Error';
-   }}
+      throw 'Bad Request';
+    } if (status === 401) {
+      throw 'Unauthorised';
+    } if (status === 403) {
+      throw 'Forbidden';
+    } if (status === 404) {
+      throw 'Not Found';
+    } if (status === 500) {
+      throw 'Server Error';
+    }
+  }
+
   render() {
-    if (this.state.isLoading){
+    if (this.state.isLoading) {
       return (
         <View
           style={{
@@ -184,23 +172,24 @@ class ProfilePage extends Component {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: '#0E1428',
-          }}>
+          }}
+        >
           <Text>Loading..</Text>
         </View>
       );
-    }else{
+    }
     return (
       <View style={styles.page}>
 
         <View style={styles.user}>
           <Image style={styles.photo} source={{ uri: this.state.photo }} />
-          <View style={{flex:2, alignItems:'flex-start',}}>
-          <Text>{this.state.info.first_name}</Text>
-          <Text>{this.state.info.last_name}</Text>
-          <Text>{this.state.info.email}</Text>
+          <View style={{ flex: 2, alignItems: 'flex-start' }}>
+            <Text>{this.state.info.first_name}</Text>
+            <Text>{this.state.info.last_name}</Text>
+            <Text>{this.state.info.email}</Text>
           </View>
           <TouchableOpacity style={{}} onPress={() => { this.props.navigation.navigate('Edit Profile'); }}>
-          <Text> Edit Profile </Text>
+            <Text> Edit Profile </Text>
           </TouchableOpacity>
         </View>
 
@@ -226,9 +215,9 @@ class ProfilePage extends Component {
             style={styles.compose}
             type="textarea"
             placeholder="Write a post"
-            multiline={true}
+            multiline
             numberOfLines="4"
-            placeholderTextColor={'white'}
+            placeholderTextColor="white"
             onChangeText={(input) => this.setState({ input })}
             value={this.state.input}
           />
@@ -238,15 +227,22 @@ class ProfilePage extends Component {
         </View>
 
         {/* My Posts */}
-      <View style={styles.postarea}>
+        <View style={styles.postarea}>
           <Text style={styles.title}>Your Posts</Text>
           <FlatList
             data={this.state.postsData}
             keyExtractor={(item, index) => item.post_id.toString()}
             renderItem={({ item }) => (
-    <View style={{minWidth:"100%"}}>
-      <View style={styles.post}>
-                  <Text>{item.author.first_name} {item.author.last_name} at {item.timestamp}
+              <View style={{ minWidth: '100%' }}>
+                <View style={styles.post}>
+                  <Text>
+                    {item.author.first_name}
+                    {' '}
+                    {item.author.last_name}
+                    {' '}
+                    at
+                    {' '}
+                    {item.timestamp}
                   </Text>
                   <Text>{item.text}</Text>
                   <Text>
@@ -259,17 +255,16 @@ class ProfilePage extends Component {
                   </TouchableOpacity>
 
                   {/* Delete Post Button */}
-                  <TouchableOpacity style={{width:'50%', height:'20%'}}onPress={() => this.deletePost(item.post_id.toString())}>
+                  <TouchableOpacity style={{ width: '50%', height: '20%' }} onPress={() => this.deletePost(item.post_id.toString())}>
                     <Text> Delete </Text>
                   </TouchableOpacity>
-      </View>
-      </View>
+                </View>
+              </View>
             )}
           />
-    </View>
-    </View>
+        </View>
+      </View>
     );
   }
-}
 }
 export default ProfilePage;

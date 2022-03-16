@@ -1,20 +1,19 @@
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/prop-types */
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/jsx-filename-extension */
 /* eslint-disable linebreak-style */
 import React, { Component } from 'react';
-import {
-  StyleSheet, View, Button, Image, TouchableOpacity, FlatList,
+import {View, Image, TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, { Text } from './styles';
-
 
 class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       info: {},
-      picURL: null,
       UID: [],
       isLoading: true,
     };
@@ -42,12 +41,12 @@ class HomePage extends Component {
   }
 
   getProfilePhoto = async () => {
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/photo`, {
       method: 'GET',
       headers: {
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
       .then((res) => res.blob())
@@ -58,24 +57,25 @@ class HomePage extends Component {
           photo: data,
           isLoading: false,
         });
-        this.photoToAsync()
+        this.photoToAsync();
       })
       .catch((err) => {
         console.log('error', err);
       });
   };
 
-photoToAsync = async() => {
-  await AsyncStorage.setItem('@photo',this.state.photo); 
-}
+  photoToAsync = async () => {
+    await AsyncStorage.setItem('@photo', this.state.photo);
+  };
+
   getCurrentUser = async () => {
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch(`http://localhost:3333/api/1.0.0/user/${UID}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
     })
       .then((response) => response.json())
@@ -85,11 +85,11 @@ photoToAsync = async() => {
           info: responseJson,
         });
       })
-      .then(async (responseJson) => {
+      .then(async () => {
         await AsyncStorage.setItem('@first_name', this.state.info.first_name);
         await AsyncStorage.setItem('@last_name', this.state.info.last_name);
         await AsyncStorage.setItem('@email', this.state.info.email);
-
+        await AsyncStorage.setItem('@friend_count', this.state.info.friend_count);
       })
       .catch((error) => {
         console.log(error);
@@ -97,20 +97,19 @@ photoToAsync = async() => {
   };
 
   getFriends = async () => {
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
     return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/friends`, {
       method: 'GET',
       headers: {
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
         'Content-Type': 'application/json',
       },
     })
       .then((response) => response.json())
-      .then((responseJson) => {
+      .then(() => {
         this.setState({
           isLoading: false,
-          friendsData: responseJson,
         });
       })
       .catch((error) => {
@@ -118,42 +117,22 @@ photoToAsync = async() => {
       });
   };
 
-  getPosts = async (friendsData) => {
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    return fetch(`http://localhost:3333/api/1.0.0/user/${this.state.UID}/post`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Authorization': session_token,
-      },
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log(responseJson);
-        this.setState({
-          isLoading: false,
-          postsData: responseJson,
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-  errorHandle(status){
+  errorHandle(status) {
     if (status === 400) {
-     throw 'Bad Request';
-   }if (status === 401) {
-     throw 'Unauthorised';
-   }if (status === 403) {
-     throw 'Forbidden';
-   }if (status === 404) {
-     throw 'Not Found';
-   }if (status === 500) {
-     throw 'Server Error';
-   }}
+      throw 'Bad Request';
+    } if (status === 401) {
+      throw 'Unauthorised';
+    } if (status === 403) {
+      throw 'Forbidden';
+    } if (status === 404) {
+      throw 'Not Found';
+    } if (status === 500) {
+      throw 'Server Error';
+    }
+  }
+
   render() {
-    if (this.state.isLoading){
+    if (this.state.isLoading) {
       return (
         <View
           style={{
@@ -162,13 +141,14 @@ photoToAsync = async() => {
             justifyContent: 'center',
             alignItems: 'center',
             backgroundColor: '#0E1428',
-          }}>
+          }}
+        >
           <Text>Loading..</Text>
         </View>
       );
-    }else{
+    }
     return (
-      
+
       <View style={styles.page}>
         <View style={styles.user}>
           <Image
@@ -178,14 +158,19 @@ photoToAsync = async() => {
             style={styles.photo}
           />
           <Text>
-            {this.state.info.first_name}{' '}{this.state.info.last_name}
+            {this.state.info.first_name}
+            {' '}
+            {this.state.info.last_name}
           </Text>
 
-          <Text>{this.state.info.friend_count} Friends</Text>
+          <Text>
+            {this.state.info.friend_count}
+            {' '}
+            Friends
+          </Text>
         </View>
 
-
-            {/* Nav */}
+        {/* Nav */}
         <View style={styles.navbar}>
           <TouchableOpacity onPress={() => { this.props.navigation.navigate('Home'); }}>
             <Text> Home </Text>
@@ -203,10 +188,9 @@ photoToAsync = async() => {
         <View style={styles.postarea}>
           <Text styles={styles.title}>Welcome to Spacebook </Text>
         </View>
-        <View style={styles.bottom}></View>
-</View>
+        <View style={styles.bottom} />
+      </View>
     );
   }
-}
 }
 export default HomePage;

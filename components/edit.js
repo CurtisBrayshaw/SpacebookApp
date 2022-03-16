@@ -1,7 +1,9 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/jsx-filename-extension */
 import React, { Component } from 'react';
 import {
-  StyleSheet, View, Button, TextInput, TouchableOpacity,
+  View, Button, TextInput,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles, { Text } from './styles';
@@ -13,10 +15,8 @@ class EditPage extends Component {
     this.state = {
       info: {},
       email: null,
-      hasPermission: null,
       first_name: null,
       last_name: null,
-      email: null,
       password: null,
     };
   }
@@ -39,40 +39,15 @@ class EditPage extends Component {
     }
   };
 
-  sendToServer = async (data) => {
-    console.log('Sent to server..');
-    const session_token = await AsyncStorage.getItem('@session_token');
-    const UID = await AsyncStorage.getItem('@UID');
-    const res = data.base64;
-    const blob = await res.blob();
-
-    return fetch(`http://localhost:3333/api/1.0.0/user/${UID}/photo`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'image/png',
-        'X-Authorization': session_token,
-      },
-      body: blob,
-    })
-      .then((response) => {
-        if (response.status === 200 || 201) {
-          console.log('Picture added', response);
-        } else {this.errorHandle(response.status)}
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   updateProfile = async () => {
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
 
     return fetch(`http://localhost:3333/api/1.0.0/user/${UID}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
 
       body: JSON.stringify(
@@ -86,13 +61,11 @@ class EditPage extends Component {
     })
       .then((response) => {
         if (response.status === 200 || 201) {
-          console.log('Updated Profile')
-        } else {this.errorHandle(response.status)}
+          console.log('Updated Profile');
+        } else { this.errorHandle(response.status); }
       })
-      .then((responseJson) => {
-        this.setState({
-          allinfo: responseJson,
-        });
+      .then(() => {
+        this.props.navigation.navigate('Home');
       })
       .catch((error) => {
         console.log(error);
@@ -101,29 +74,25 @@ class EditPage extends Component {
 
   notNull = async () => {
     this.setState({ first_name: await AsyncStorage.getItem('@first_name') });
-    console.log(this.state.first_name);
-
     this.setState({ last_name: await AsyncStorage.getItem('@last_name') });
-    console.log(this.state.last_name);
-
     this.setState({ email: await AsyncStorage.getItem('@email') });
-    console.log(this.state.email);
-
     this.setState({ password: await AsyncStorage.getItem('@password') });
   };
 
-  errorHandle(status){
+  errorHandle(status) {
     if (status === 400) {
-     throw 'Bad Request';
-   }if (status === 401) {
-     throw 'Unauthorised';
-   }if (status === 403) {
-     throw 'Forbidden';
-   }if (status === 404) {
-     throw 'Not Found';
-   }if (status === 500) {
-     throw 'Server Error';
-   }}
+      throw 'Bad Request';
+    } if (status === 401) {
+      throw 'Unauthorised';
+    } if (status === 403) {
+      throw 'Forbidden';
+    } if (status === 404) {
+      throw 'Not Found';
+    } if (status === 500) {
+      throw 'Server Error';
+    }
+  }
+
   render() {
     return (
       <View style={styles.page}>
@@ -161,7 +130,7 @@ class EditPage extends Component {
           style={{ padding: 5, borderWidth: 1, margin: 5 }}
           secureTextEntry
         />
-        <Button title="Submit" onPress={() => this.updateProfile() & this.props.navigation.navigate('Home')} />
+        <Button title="Submit" onPress={() => this.updateProfile()} />
       </View>
     );
   }

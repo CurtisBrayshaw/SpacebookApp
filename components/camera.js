@@ -1,8 +1,12 @@
+/* eslint-disable no-return-assign */
+/* eslint-disable react/destructuring-assignment */
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable linebreak-style */
 import React, { Component } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { Camera } from 'expo-camera';
-import styles, { Text } from './styles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import styles, { Text } from './styles';
 
 class CameraPage extends Component {
   constructor(props) {
@@ -11,7 +15,6 @@ class CameraPage extends Component {
     this.state = {
       hasPermission: null,
       type: Camera.Constants.Type.back,
-      isLoading: true,
     };
   }
 
@@ -35,7 +38,7 @@ class CameraPage extends Component {
   sendToServer = async (data) => {
     console.log('sent');
     // Get these from AsyncStorage
-    const session_token = await AsyncStorage.getItem('@session_token');
+    const sessionToken = await AsyncStorage.getItem('@session_token');
     const UID = await AsyncStorage.getItem('@UID');
 
     const res = await fetch(data.base64);
@@ -45,33 +48,34 @@ class CameraPage extends Component {
       method: 'POST',
       headers: {
         'Content-Type': 'image/png',
-        'X-Authorization': session_token,
+        'X-Authorization': sessionToken,
       },
       body: blob,
     })
       .then((response) => {
         if (response.status === 200) {
           console.log('Picture added', response);
-          this.setState({
-          isLoading: false})
-        } else {this.errorHandle(response.status)}
+        } else { this.errorHandle(response.status); }
       })
       .catch((err) => {
         console.log(err);
       });
   };
-  errorHandle(status){
+
+  errorHandle(status) {
     if (status === 400) {
-     throw 'Bad Request';
-   }if (status === 401) {
-     throw 'Unauthorised';
-   }if (status === 403) {
-     throw 'Forbidden';
-   }if (status === 404) {
-     throw 'Not Found';
-   }if (status === 500) {
-     throw 'Server Error';
-   }}
+      throw 'Bad Request';
+    } if (status === 401) {
+      throw 'Unauthorised';
+    } if (status === 403) {
+      throw 'Forbidden';
+    } if (status === 404) {
+      throw 'Not Found';
+    } if (status === 500) {
+      throw 'Server Error';
+    }
+  }
+
   render() {
     if (this.state.hasPermission) {
       return (
@@ -83,7 +87,6 @@ class CameraPage extends Component {
           >
             <View style={styles.buttonContainer}>
               <TouchableOpacity
-
                 onPress={() => {
                   this.takePicture();
                 }}

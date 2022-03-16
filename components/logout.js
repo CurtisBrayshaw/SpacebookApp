@@ -1,26 +1,31 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable no-undef */
+/* eslint-disable no-throw-literal */
+/* eslint-disable react/no-unused-state */
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react';
-import {ScrollView, Button } from 'react-native';
+import { ScrollView, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import styles, { Text } from './styles';
+
 class HomePage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      token: '',
-      isLoading: true,
     };
   }
 
   componentDidMount() {
-    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+    this.unsubscribe = this.props.navigation.addListener('focus', () => {
       this.checkLoggedIn();
     });
   }
 
   componentWillUnmount() {
-    this._unsubscribe();
+    this.unsubscribe();
   }
 
   checkLoggedIn = async () => {
@@ -42,8 +47,7 @@ class HomePage extends Component {
       },
     })
       .then((response) => {
-        this.setState({
-        isLoading: false})
+        this.setState({ isLoading: false });
         if (response.status === 200) {
           this.props.navigation.navigate('Login');
         } else if (response.status === 401) {
@@ -57,23 +61,25 @@ class HomePage extends Component {
         ToastAndroid.show(error, ToastAndroid.SHORT);
       });
   };
-  errorHandle(status){
+
+  errorHandle(status) {
     if (status === 400) {
-     throw 'Bad Request';
-   }if (status === 401) {
-     throw 'Unauthorised';
-   }if (status === 403) {
-     throw 'Forbidden';
-   }if (status === 404) {
-     throw 'Not Found';
-   }if (status === 500) {
-     throw 'Server Error';
-   }}
+      throw 'Bad Request';
+    } if (status === 401) {
+      throw 'Unauthorised';
+    } if (status === 403) {
+      throw 'Forbidden';
+    } if (status === 404) {
+      throw 'Not Found';
+    } if (status === 500) {
+      throw 'Server Error';
+    }
+  }
+
   render() {
     return (
-      <ScrollView style={{backgroundColor:'#0E1428' }}>
-        <Text style={styles.title}
-        >
+      <ScrollView style={{ backgroundColor: '#0E1428' }}>
+        <Text style={styles.title}>
           Really?
         </Text>
         <Button

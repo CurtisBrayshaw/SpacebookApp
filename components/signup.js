@@ -1,6 +1,9 @@
+/* eslint-disable react/jsx-filename-extension */
+/* eslint-disable react/prop-types */
+/* eslint-disable no-throw-literal */
+/* eslint-disable react/destructuring-assignment */
 import React, { Component } from 'react';
 import { Button, ScrollView, TextInput } from 'react-native';
-import styles from './styles';
 
 class SignupPage extends Component {
   constructor(props) {
@@ -31,8 +34,7 @@ class SignupPage extends Component {
     })
       .then((response) => {
         if (response.status === 201) {
-          this.setState({
-          isLoading: false})
+          this.setState({ isLoading: false });
           return response.json();
         } if (response.status === 400) {
           throw 'Failed validation';
@@ -48,21 +50,24 @@ class SignupPage extends Component {
         console.log(error);
       });
   };
-  errorHandle(status){
+
+  errorHandle(status) {
     if (status === 400) {
-     throw 'Bad Request';
-   }if (status === 401) {
-     throw 'Unauthorised';
-   }if (status === 403) {
-     throw 'Forbidden';
-   }if (status === 404) {
-     throw 'Not Found';
-   }if (status === 500) {
-     throw 'Server Error';
-   }}
+      throw 'Bad Request';
+    } if (status === 401) {
+      throw 'Unauthorised';
+    } if (status === 403) {
+      throw 'Forbidden';
+    } if (status === 404) {
+      throw 'Not Found';
+    } if (status === 500) {
+      throw 'Server Error';
+    }
+  }
+
   render() {
-      return (
-      <ScrollView>
+    return (
+      <ScrollView style={{ backgroundColor: '#0E1428' }}>
         <TextInput
           placeholder="Enter your first name..."
           onChangeText={(first_name) => this.setState({ first_name })}
