@@ -6,3 +6,6 @@
 Launch Spacebook server using npm start on port :3333
 
 ESLINT was used to improve code quality using the airbnb style guide.
+
+Link to github repo:
+https://github.com/CurtisBrayshaw/SpacebookApp
